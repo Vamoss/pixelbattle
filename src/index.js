@@ -2,11 +2,10 @@ import _ from 'lodash';
 import './index.less';
 
 var earthCincunferenceX = 40075000; //meters
-var earthCincunferenceY = 23450000; //meters
-var gridSpaceMeter = 40; //meters
-var degreesToMeterX = 360*gridSpaceMeter/earthCincunferenceX;
+var earthCincunferenceY = 40075000/2; //meters
+var gridSpaceMeter = 10; //meters
+var degreesToMeterX = 360*gridSpaceMeter*2/earthCincunferenceX;
 var degreesToMeterY = 360*gridSpaceMeter/earthCincunferenceY;
-console.log(degreesToMeterX, degreesToMeterY)
 var map;
 
 var mapEl = document.createElement('div');
@@ -44,7 +43,7 @@ function point2LatLng(point, map) {
 }
 
 function drawGrid(){
-	if(map.getZoom()<14) return;
+	if(map.getZoom()<15) return;
 	var context = canvasEl.getContext('2d');
 	context.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
@@ -63,19 +62,20 @@ function drawGrid(){
 	context.stroke();
 
 	//find screen size in lat lng
-	var space = window.innerWidth * degreesToMeterX / Math.abs(topRight.lng()-bottomLeft.lng())
+	var spaceX = window.innerWidth * degreesToMeterX / Math.abs(topRight.lng()-bottomLeft.lng())
+	var spaceY = window.innerHeight * degreesToMeterY / Math.abs(topRight.lat()-bottomLeft.lat())
 	console.log(Math.abs(topRight.lng()-bottomLeft.lng()))
 	var bw = window.innerWidth;
 	var bh = window.innerHeight;
 	var p = 10;
 
-	for (var x = topLeftModPoint.x; x <= bw+space; x += space) {
+	for (var x = topLeftModPoint.x; x <= bw+spaceX; x += spaceX) {
 		context.moveTo(x, topLeftModPoint.y);
 		context.lineTo(x, bh);
 	}
 
 
-	for (var y = topLeftModPoint.y; y <= bh+space; y += space) {
+	for (var y = topLeftModPoint.y; y <= bh+spaceY; y += spaceY) {
 		context.moveTo(topLeftModPoint.x, y);
 		context.lineTo(bw, y);
 	}
