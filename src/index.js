@@ -1,115 +1,94 @@
 import _ from 'lodash';
 import './index.less';
 
+var L = require('leaflet')
+
 var earthCincunferenceX = 40075000; //meters
 var earthCincunferenceY = 40075000/2; //meters
 var gridSpaceMeter = 10; //meters
 var degreesToMeterX = 360*gridSpaceMeter*2/earthCincunferenceX;
 var degreesToMeterY = 360*gridSpaceMeter/earthCincunferenceY;
-var map;
 
-var mapEl = document.createElement('div');
-mapEl.id = 'map';
-document.body.appendChild(mapEl);
-
-var canvasEl = document.createElement('canvas');
-document.body.appendChild(canvasEl);
+var mapEl, map, canvasEl;
 
 Math.map = function ( x, a1, a2, b1, b2 ) {
 	return b1 + ( x - a1 ) * ( b2 - b1 ) / ( a2 - a1 );
 }
 
-function getLatLngMod(latLng){
-	return new google.maps.LatLng(
-		Math.ceil(latLng.lat()/degreesToMeterY)*degreesToMeterY,
-		Math.floor(latLng.lng()/degreesToMeterX)*degreesToMeterX
-	);
+function getMod(latLng){
+	latLng.lng = Math.floor(latLng.lng/degreesToMeterX)*degreesToMeterX;
+	latLng.lat = Math.ceil(latLng.lat/degreesToMeterY)*degreesToMeterY;
+	return latLng;
 }
 
-function latLng2Point(latLng, map) {
-	var topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
-	var bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());
-	var scale = Math.pow(2, map.getZoom());
-	var worldPoint = map.getProjection().fromLatLngToPoint(latLng);
-	return new google.maps.Point((worldPoint.x - bottomLeft.x) * scale, (worldPoint.y - topRight.y) * scale);
+function latLng2Point(latLng) {
+	return map.latLngToContainerPoint(latLng)
 }
 
-function point2LatLng(point, map) {
-	var topRight = map.getProjection().fromLatLngToPoint(map.getBounds().getNorthEast());
-	var bottomLeft = map.getProjection().fromLatLngToPoint(map.getBounds().getSouthWest());
-	var scale = Math.pow(2, map.getZoom());
-	var worldPoint = new google.maps.Point(point.x / scale + bottomLeft.x, point.y / scale + topRight.y);
-	return map.getProjection().fromPointToLatLng(worldPoint);
+function point2LatLng(point, zoom) {
+	return map.unproject(point, zoom);
 }
 
-function drawGrid(){
-	if(map.getZoom()<15) return;
+function draw(){
+	var w = window.innerWidth;
+	var h = window.innerHeight;
+	canvasEl.width = w;
+	canvasEl.height = h;
+
 	var context = canvasEl.getContext('2d');
 	context.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-	var point = latLng2Point(new google.maps.LatLng(0, 0), map);
+	if(map.getZoom()<15) return;
+
+	var bounds = map.getBounds();
+
+	//find initial top left mod
+	var ne = bounds.getNorthEast();
+	var sw = bounds.getSouthWest();
+	var topLeft = latLng2Point(getMod(bounds.getNorthWest()));
 	context.beginPath();
-	context.arc(point.x,point.y,10,0,2*Math.PI);
+	context.arc(topLeft.x,topLeft.y,200,0,2*Math.PI);
 	context.stroke();
 	
-	//find initial top left mod
-	var topRight = map.getBounds().getNorthEast();
-	var bottomLeft = map.getBounds().getSouthWest();
-	var topLeftMod = getLatLngMod(new google.maps.LatLng(topRight.lat(), bottomLeft.lng()));
-	var topLeftModPoint = latLng2Point(topLeftMod, map)
-	context.beginPath();
-	context.arc(topLeftModPoint.x,topLeftModPoint.y,200,0,2*Math.PI);
-	context.stroke();
-
 	//find screen size in lat lng
-	var spaceX = window.innerWidth * degreesToMeterX / Math.abs(topRight.lng()-bottomLeft.lng())
-	var spaceY = window.innerHeight * degreesToMeterY / Math.abs(topRight.lat()-bottomLeft.lat())
-	console.log(Math.abs(topRight.lng()-bottomLeft.lng()))
-	var bw = window.innerWidth;
-	var bh = window.innerHeight;
-	var p = 10;
-
-	for (var x = topLeftModPoint.x; x <= bw+spaceX; x += spaceX) {
-		context.moveTo(x, topLeftModPoint.y);
-		context.lineTo(x, bh);
+	var spaceX = w * degreesToMeterX / Math.abs(ne.lng-sw.lng)
+	var spaceY = h * degreesToMeterY / Math.abs(ne.lat-sw.lat)
+	
+	for (var x = topLeft.x; x <= w+spaceX; x += spaceX) {
+		context.moveTo(x, topLeft.y);
+		context.lineTo(x, h);
 	}
 
-
-	for (var y = topLeftModPoint.y; y <= bh+spaceY; y += spaceY) {
-		context.moveTo(topLeftModPoint.x, y);
-		context.lineTo(bw, y);
+	for (var y = topLeft.y; y <= h+spaceY; y += spaceY) {
+		context.moveTo(topLeft.x, y);
+		context.lineTo(w, y);
 	}
 
 	context.strokeStyle = "black";
 	context.stroke();
 }
 
-function draw(){
-	canvasEl.width = window.innerWidth;
-	canvasEl.height = window.innerHeight;
-	drawGrid();
-}
-
-function init(google){
-	var mapOptions = {
-		zoom: 15,
-		//meridian
-		//center: new google.maps.LatLng(0, 0),
-		//rio de janeiro
-		center: new google.maps.LatLng(-22.9707, -43.1823),
-		mapTypeId: google.maps.MapTypeId.ROADMAP
-	};
-	map=new google.maps.Map(mapEl, mapOptions);
-	var flightPlanCoordinates = [
-		{lat: 0, lng: 0},
-		{lat: 0, lng: 360}
-	];
+function init(){
+	mapEl = document.createElement('div');
+	mapEl.id = 'map';
+	document.body.appendChild(mapEl);
 	
-	window.addEventListener('resize', draw, false);
-	map.addListener('drag', draw);
-	map.addListener('idle', draw);
-	map.addListener('zoom_changed', draw);
+	canvasEl = document.createElement('canvas');
+	document.body.appendChild(canvasEl);
+
+	map = L.map('map');
+	map.setView([-22.9707, -43.1823], 15);
+
+	var osm_mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 19,
+		attribution: '&copy; OSM Mapnik <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+	}).addTo(map);
+
+	//window.addEventListener('resize', draw, false);
+	map.on('move', draw);
+	map.on('zoom', draw);
+
+	draw();
 }
 
-var GoogleMapsLoader = require('google-maps');
-GoogleMapsLoader.load(init);
+init();
