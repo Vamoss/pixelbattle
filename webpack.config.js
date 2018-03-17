@@ -5,7 +5,7 @@ module.exports = {
 	entry: './src/index.js',
 	output: {
 		filename: 'assets/js/index.js',
-		path: path.resolve(__dirname, 'dist')
+		path: path.resolve(__dirname, 'docs')
 	},
 	devtool: 'inline-source-map',
 	plugins: [
@@ -15,7 +15,7 @@ module.exports = {
 		})
 	],
 	devServer: {
-		contentBase: "./dist"
+		contentBase: "./docs"
 	},
 	module: {
 		rules: [
