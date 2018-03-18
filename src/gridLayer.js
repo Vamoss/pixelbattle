@@ -20,6 +20,8 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	DB: require('./DB.js'),
 
+	debug: false,
+
 	//called once
 	onAdd: function(map) {
 		this.maxZoom = map.getMaxZoom();
@@ -37,11 +39,16 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		canvas.setAttribute('width', tileSize.x);
 		canvas.setAttribute('height', tileSize.y);
 
-		var tile = document.createElement('div');
-		tile.innerHTML = [coords.x, coords.y, coords.z].join(', ') + '<br/>' + [coords.x*this.tilesInMaximumZoom, coords.y*this.tilesInMaximumZoom, coords.z*this.tilesInMaximumZoom].join(', ');
-		//tile.style.outline = '1px solid red';
-		tile.style.color = '#000';
-		tile.appendChild(canvas);
+		var tile;
+		if(this.debug){
+			tile = document.createElement('div');
+			tile.innerHTML = [coords.x, coords.y, coords.z].join(', ') + '<br/>' + [coords.x*this.tilesInMaximumZoom, coords.y*this.tilesInMaximumZoom, coords.z*this.tilesInMaximumZoom].join(', ');
+			tile.style.outline = '1px solid red';
+			tile.style.color = '#000';
+			tile.appendChild(canvas);
+		}else{
+			tile = canvas;
+		}
 
 		tile.setAttribute('data-coord', JSON.stringify(coords));
 		
@@ -134,13 +141,25 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		var tileSize = this.getTileSize();
 		var size = tileSize.x/perLine;
 
-		//grid
-		var context = tile.querySelector('canvas').getContext('2d');
+
+		var context;
+		if(this.debug){
+			context = tile.querySelector('canvas').getContext('2d');
+		}else{
+			context = tile.getContext('2d');
+		}
 		context.clearRect(0, 0, tileSize.x, tileSize.y);
-		context.strokeStyle = 'rgba(0,0,0,0.7)';
+
+		//grid
+		context.strokeStyle = 'rgba(0,0,0,0.3)';
 		context.beginPath();
-		for(var i=0; i<total; i++){
-			context.rect(size*(i%perLine), size*Math.floor(i/perLine), size, size);
+		for (var x = 0; x <= tileSize.x; x += size) {
+			context.moveTo(x, 0);
+			context.lineTo(x, tileSize.y);
+		}
+		for (var y = 0; y <= tileSize.y; y += size) {
+			context.moveTo(0, y);
+			context.lineTo(tileSize.x, y);
 		}
 		context.stroke();
 
