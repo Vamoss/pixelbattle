@@ -18,6 +18,8 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	mouse: {x: -1, y: -1},
 
+	DB: require('./DB.js'),
+
 	//called once
 	onAdd: function(map) {
 		this.maxZoom = map.getMaxZoom();
@@ -29,7 +31,6 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	//called after onAdd, everytime a tile is created
 	createTile: function (coords) {
-		
 		var canvas = document.createElement('canvas');
 
 		var tileSize = this.getTileSize();
@@ -37,9 +38,9 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		canvas.setAttribute('height', tileSize.y);
 
 		var tile = document.createElement('div');
-		tile.innerHTML = [coords.x, coords.y, coords.z].join(', ');
-		tile.style.outline = '1px solid red';
-		tile.style.color = '#fff';
+		tile.innerHTML = [coords.x, coords.y, coords.z].join(', ') + '<br/>' + [coords.x*this.tilesInMaximumZoom, coords.y*this.tilesInMaximumZoom, coords.z*this.tilesInMaximumZoom].join(', ');
+		//tile.style.outline = '1px solid red';
+		tile.style.color = '#000';
 		tile.appendChild(canvas);
 
 		tile.setAttribute('data-coord', JSON.stringify(coords));
@@ -56,6 +57,10 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		//enable mouse move
 		tile.style.pointerEvents = "auto";//default is none
 		var t = this;
+		tile.onclick = function(event) {
+			t.onMouseClick.call(t, event, tile);
+		}
+
 		tile.onmousemove = function(event) {
 			t.onMouseMove.call(t, event, tile);
 		}
@@ -78,6 +83,13 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		return {x:x, y:y};
 	},
 
+	getCoords: function(tile) {
+		var dataCoord = JSON.parse(tile.getAttribute('data-coord'));
+		var coords = new Point(dataCoord.x, dataCoord.y);
+		coords.z = dataCoord.z;
+		return coords;
+	},
+
 	onMouseMove: function(event, tile){
 		tile.setAttribute('data-mouse-over', "true");
 		var pos = this.getXY(event, tile);
@@ -90,22 +102,39 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
   		this.draw(tile);
 	},
 
-	draw: function(tile) {
-		var dataCoord = JSON.parse(tile.getAttribute('data-coord'));
-		var coords = new Point(dataCoord.x, dataCoord.y);
-		coords.z = dataCoord.z;
+	onMouseClick: function(event, tile){
+		var coords = this.getCoords(tile);
 
 		//at maximum zoom it is equals to 1, as the zoom decreases, the scale grows
 		var scale = (this.maxZoom-coords.z+1);
 
-		//grid calculation
-		//code from: https://www.openprocessing.org/sketch/386216
 		var total = Math.pow(this.tilesInMaximumZoom, scale+1);
 		var perLine = Math.ceil(Math.sqrt(total));
 		
 		var tileSize = this.getTileSize();
 		var size = tileSize.x/perLine;
+
+		var idX = coords.x * perLine + Math.floor(this.mouse.x/size);
+		var idY = coords.y * perLine + Math.floor(this.mouse.y/size);
 		
+		this.DB.save(idX, idY);
+		this.draw(tile);
+
+	},
+
+	draw: function(tile) {
+		var coords = this.getCoords(tile);
+		
+		//at maximum zoom it is equals to 1, as the zoom decreases, the scale grows
+		var scale = (this.maxZoom-coords.z+1);
+
+		var total = Math.pow(this.tilesInMaximumZoom, scale+1);
+		var perLine = Math.ceil(Math.sqrt(total));
+		
+		var tileSize = this.getTileSize();
+		var size = tileSize.x/perLine;
+
+		//grid
 		var context = tile.querySelector('canvas').getContext('2d');
 		context.clearRect(0, 0, tileSize.x, tileSize.y);
 		context.strokeStyle = 'rgba(0,0,0,0.7)';
@@ -115,6 +144,18 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		}
 		context.stroke();
 
+		//pixels painted
+		var data = this.DB.getData(coords, this.tilesInMaximumZoom);
+		for(var i=0; i<data.length; i++){
+			var x = data[i].x - (coords.x * perLine);//0, 1, 2...
+			var y = data[i].y - (coords.y * perLine);//0, 1, 2...
+			context.beginPath();
+			context.fillStyle = data[i].color;
+			context.rect(x*size, y*size, size, size);
+			context.fill();
+		}
+		
+		//mouse over
 		var mouseOver = tile.getAttribute('data-mouse-over')=="true";
 		if(mouseOver){
 			var mouseX = Math.floor((this.mouse.x)/size)*size;
