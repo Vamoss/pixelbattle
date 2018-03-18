@@ -20,6 +20,8 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	DB: require('./DB.js'),
 
+	//when true, it creates a <div> that will contain <canvas>
+	//when false, the <canvas> will be the only element
 	debug: false,
 
 	//called once
@@ -77,7 +79,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		}
 	},
 
-	getXY: function(evt, element) {
+	getMouseXY: function(evt, element) {
 		var rect = element.getBoundingClientRect();
 		var scrollTop = document.documentElement.scrollTop?document.documentElement.scrollTop:document.body.scrollTop;
 		var scrollLeft = document.documentElement.scrollLeft?document.documentElement.scrollLeft:document.body.scrollLeft;
@@ -99,7 +101,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	onMouseMove: function(event, tile){
 		tile.setAttribute('data-mouse-over', "true");
-		var pos = this.getXY(event, tile);
+		var pos = this.getMouseXY(event, tile);
 		this.mouse = new Point(pos.x, pos.y);
   		this.draw(tile);
 	},
@@ -164,7 +166,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		context.stroke();
 
 		//pixels painted
-		var data = this.DB.getData(coords, this.tilesInMaximumZoom);
+		var data = this.DB.getData(coords, this.tilesInMaximumZoom, this.maxZoom);
 		for(var i=0; i<data.length; i++){
 			var x = data[i].x - (coords.x * perLine);//0, 1, 2...
 			var y = data[i].y - (coords.y * perLine);//0, 1, 2...

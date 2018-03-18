@@ -19,11 +19,11 @@ function DB() {
 		};
 	}
 
-	DB.prototype.getData = function(coords, tilesInMaximumZoom){
+	DB.prototype.getData = function(coords, tilesInMaximumZoom, maxZoom){
 		var aData = [];
 
 		//at maximum zoom it is equals to 1, as the zoom decreases, the scale grows
-		var scale = (19-coords.z+1);
+		var scale = (maxZoom-coords.z+1);
 
 		var total = Math.pow(tilesInMaximumZoom, scale+1);
 		var perLine = Math.ceil(Math.sqrt(total));
