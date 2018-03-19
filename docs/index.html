@@ -4,8 +4,34 @@
 		<title>Pixel Battle</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="assets/css/leaflet.css">
-	</head>
+		<link rel="stylesheet" href="assets/css/style.css">
+	<link href="./assets/css/style.css" rel="stylesheet"></head>
 	<body>
-	<script type="text/javascript" src="assets/js/index.js"></script></body>
+		<div id="controls">
+			<button id="revealColorSelect">+</button>
+			<div id="colorSelect">
+				<span id="newColor"></span>
+				<div class="sliders">
+					<p>
+						<label for="red">Red</label>
+						<input id="red" name="red" type="range" min=0 max=255 value=255>
+					</p>
+					<p>
+						<label for="green">Green</label>
+						<input id="green" name="green" type="range" min=0 max=255 value=255>
+					</p>
+					<p>
+						<label for="blue">Blue</label>
+						<input id="blue" name="blue" type="range" min=0 max=255 value=255>
+					</p>
+				</div>
+				<div>
+					<button id="addNewColor">Add Color</button>
+				</div>
+			</div>
+
+			<div id="colors">
+			</div>
+		</div>
+	<script type="text/javascript" src="./assets/js/index.js"></script></body>
 </html>

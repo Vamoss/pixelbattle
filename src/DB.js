@@ -15,7 +15,7 @@ function DB() {
 			time: new Date().getTime(),
 			x: idX,
 			y: idY,
-			color: 'rgba('+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+','+Math.floor(Math.random()*255)+',0.7)'
+			color: 'rgba('+window.color.r+','+window.color.g+','+window.color.b+',0.7)'
 		};
 	}
 

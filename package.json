@@ -28,6 +28,7 @@
   "homepage": "https://github.com/Vamoss/pixelbattle#readme",
   "devDependencies": {
     "css-loader": "^0.28.10",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "html-webpack-plugin": "^3.0.6",
     "less": "^3.0.1",
     "less-loader": "^4.1.0",
