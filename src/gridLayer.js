@@ -13,9 +13,6 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	//number of tiles in the maximum zoom
 	tilesInMaximumZoom: 4,
 
-	//2097152 = (2^19)*4 = (2^maximumZoom)*tilesInMaximumZoom
-	maxId: -1,
-
 	mouse: {x: -1, y: -1},
 
 	DB: require('./DB.js'),
@@ -27,8 +24,6 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	//called once
 	onAdd: function(map) {
 		this.maxZoom = map.getMaxZoom();
-		this.maxId = Math.pow(2, this.maxZoom) * this.tilesInMaximumZoom;
-		this.map = map;
 		//call after initialization
 		L.GridLayer.prototype.onAdd.call(this, map);
 	},
@@ -114,11 +109,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	onMouseClick: function(event, tile){
 		var coords = this.getCoords(tile);
 
-		//at maximum zoom it is equals to 1, as the zoom decreases, the scale grows
-		var scale = (this.maxZoom-coords.z+1);
-
-		var total = Math.pow(this.tilesInMaximumZoom, scale+1);
-		var perLine = Math.ceil(Math.sqrt(total));
+		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
 		
 		var tileSize = this.getTileSize();
 		var size = tileSize.x/perLine;
@@ -133,16 +124,11 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	draw: function(tile) {
 		var coords = this.getCoords(tile);
-		
-		//at maximum zoom it is equals to 1, as the zoom decreases, the scale grows
-		var scale = (this.maxZoom-coords.z+1);
-
-		var total = Math.pow(this.tilesInMaximumZoom, scale+1);
-		var perLine = Math.ceil(Math.sqrt(total));
+	
+		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
 		
 		var tileSize = this.getTileSize();
 		var size = tileSize.x/perLine;
-
 
 		var context;
 		if(this.debug){
@@ -166,7 +152,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		context.stroke();
 
 		//pixels painted
-		var data = this.DB.getData(coords, this.tilesInMaximumZoom, this.maxZoom);
+		var data = this.DB.getData(coords, perLine);
 		for(var i=0; i<data.length; i++){
 			var x = data[i].x - (coords.x * perLine);//0, 1, 2...
 			var y = data[i].y - (coords.y * perLine);//0, 1, 2...
