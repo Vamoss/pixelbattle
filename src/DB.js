@@ -1,15 +1,40 @@
-function DB() {
-	if (!DB.instance) {
-		DB.instance = this;
+const EventEmitter = require('events')
+
+var firebase = require('firebase');
+
+class DB extends EventEmitter {
+	constructor () {
+		super();
+		this.data = {}
+
+		var config = {
+			apiKey: process.env.API_KEY,
+			authDomain: process.env.AUTH_DOMAIN,
+			databaseURL: process.env.DATABASE_URL,
+			projectId: process.env.PROJECT_ID,
+			storageBucket: "",
+			messagingSenderId: process.env.MESSAGING_SENDER_ID
+		};
+		var app = firebase.initializeApp(config);
+		this.pixelsRef = firebase.app().database().ref('/pixels');
+		var t = this;
+		//TODO
+		//query only necessary data visible in the map
+		this.pixelsRef.on('value', function(snapshot) {
+			var values = snapshot.val();
+			for (var i in values) {
+				var id = values[i].x + ':' + values[i].y;
+				t.data[id] = values[i];
+			}
+			t.emit('onData', values)
+		});
 	}
 
-	DB.prototype.data = {};
-
-	DB.prototype.load = function(tile){
+	load(tile){
 
 	}
 
-	DB.prototype.save = function(idX, idY){
+	save(idX, idY){
 		var id = idX + ':' + idY;
 		this.data[id] = {
 			time: new Date().getTime(),
@@ -17,9 +42,10 @@ function DB() {
 			y: idY,
 			color: 'rgba('+window.color.r+','+window.color.g+','+window.color.b+',0.7)'
 		};
+		this.pixelsRef.push(this.data[id]);
 	}
 
-	DB.prototype.getData = function(coords, perLine){
+	getData(coords, perLine){
 		var aData = [];
 
 		var xx = coords.x * perLine;
@@ -35,8 +61,6 @@ function DB() {
 		}
 		return aData;
 	}
-
-	return DB.instance;
 }
 
-module.exports = new DB();
+export default DB

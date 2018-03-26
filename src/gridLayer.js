@@ -1,4 +1,5 @@
 import {Point} from '../node_modules/leaflet/src/geometry/Point';
+import DB from './DB.js'
 var L = require('leaflet')
 	
 //suppose maximum zoom is 19
@@ -15,7 +16,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	mouse: {x: -1, y: -1},
 
-	DB: require('./DB.js'),
+	DB: new DB(),
 
 	//when true, it creates a <div> that will contain <canvas>
 	//when false, the <canvas> will be the only element
@@ -24,6 +25,12 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	//called once
 	onAdd: function(map) {
 		this.maxZoom = map.getMaxZoom();
+
+		var t = this;
+		this.DB.on('onData', function(data){
+			t.onDataChange.call(t, data)
+		});
+
 		//call after initialization
 		L.GridLayer.prototype.onAdd.call(this, map);
 	},
@@ -120,6 +127,11 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		this.DB.save(idX, idY);
 		this.draw(tile);
 
+	},
+
+	onDataChange: function(data){
+		//TODO
+		//loop all tiles and update it if necessary
 	},
 
 	draw: function(tile) {
