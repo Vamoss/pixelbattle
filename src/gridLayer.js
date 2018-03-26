@@ -69,7 +69,15 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		tile.style.pointerEvents = "auto";//default is none
 		var t = this;
 		tile.onclick = function(event) {
-			t.onMouseClick.call(t, event, tile);
+			//prevent click when user has dragged
+			if(t.initDragX == event.pageX && t.initDragY == event.pageY){
+				t.onMouseClick.call(t, event, tile);
+			}
+		}
+
+		tile.onmousedown = function(event) {
+			t.initDragX = event.pageX;
+			t.initDragY = event.pageY;
 		}
 
 		tile.onmousemove = function(event) {
