@@ -79,6 +79,10 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		tile.onmouseleave = function(event) {
 			t.onMouseLeave.call(t, event, tile);
 		}
+
+		tile.addEventListener('redraw', function(event) {
+			t.onTileDataChange(tile, event.detail);
+		}, false);
 	},
 
 	getMouseXY: function(evt, element) {
@@ -130,8 +134,39 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	},
 
 	onDataChange: function(data){
-		//TODO
-		//loop all tiles and update it if necessary
+		var event = new CustomEvent('redraw', {detail: data});
+		for(var tile in this._tiles){
+			this._tiles[tile].el.dispatchEvent(event);
+		}
+	},
+
+	onTileDataChange: function(tile, data){
+		var coords = this.getCoords(tile);
+		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
+		var tileX = coords.x * perLine;
+		var tileY = coords.y * perLine;
+		for(var i in data){
+			var x = data[i].x;
+			var y = data[i].y;
+			if(x >= tileX && x < tileX + perLine
+			&& y >= tileY && y < tileY + perLine){
+				this.draw(tile);
+				if(this.debug){
+					var context;
+					if(this.debug){
+						context = tile.querySelector('canvas').getContext('2d');
+					}else{
+						context = tile.getContext('2d');
+					}
+					context.fillStyle = 'rgba(255,0,0,.1)';
+					context.beginPath();
+					var tileSize = this.getTileSize();
+					context.rect(0,0,tileSize.x,tileSize.y);
+					context.fill();
+				}
+				return;
+			}
+		}
 	},
 
 	draw: function(tile) {

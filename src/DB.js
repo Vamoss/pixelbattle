@@ -18,15 +18,33 @@ class DB extends EventEmitter {
 		var app = firebase.initializeApp(config);
 		this.pixelsRef = firebase.app().database().ref('/pixels');
 		var t = this;
+
 		//TODO
 		//query only necessary data visible in the map
-		this.pixelsRef.on('value', function(snapshot) {
+		//only the last per pixel
+
+		var initialDataLoaded = false;
+		//load the first time
+		this.pixelsRef
+		.once('value', function(snapshot) {
+			initialDataLoaded = true;
 			var values = snapshot.val();
 			for (var i in values) {
 				var id = values[i].x + ':' + values[i].y;
 				t.data[id] = values[i];
 			}
 			t.emit('onData', values)
+		});
+
+		//when some child is changed
+		this.pixelsRef
+		.limitToLast(1)
+		.on('child_added', function(snapshot) {
+			if(!initialDataLoaded) return;
+			var value = snapshot.val();
+			var id = value.x + ':' + value.y;
+			t.data[id] = value;
+			t.emit('onData', {0:value})
 		});
 	}
 
