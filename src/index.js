@@ -20,7 +20,71 @@ var osm_mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 	attribution: '&copy; OSM Mapnik <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-map.addLayer( L.gridLayer.pixelBattle() );
+var pixelBattle = L.gridLayer.pixelBattle();
+map.addLayer( pixelBattle );
+
+//lock drawing
+var lockOptions = {color: "#444444", weight: 1, fillOpacity: 0.7};
+var lockLayer = L.rectangle([[-90, -180], [90, 180]], lockOptions);
+lockLayer.addTo(map);
+
+//user location
+var user_location = {};
+var area_util;
+function onLocationFound(e) {
+	user_location = e.latlng;
+	map.setView(user_location)
+	blockView(user_location);
+	map.removeLayer(lockLayer);
+	// zoom the map to the rectangle bounds
+	//map.fitBounds(bounds);
+}
+
+function onLocationError(e) {
+	console.log(e.message);
+	map.addLayer(lockLayer);
+}
+
+function locate() {
+	map.locate();
+}
+
+function blockView(latlng){
+	var size = 0.001;
+	
+	var x = latlng.lat-size;
+	var y = latlng.lng-size;
+	var w = latlng.lat+size;
+	var h = latlng.lng+size;
+	
+	var size = 1;
+	var x2 = latlng.lat-size;
+	var y2 = latlng.lng-size;
+	var w2 = latlng.lat+size;
+	var h2 = latlng.lng+size;
+
+	// define rectangle geographical bounds
+	if(area_util) map.removeLayer(area_util);
+	
+	var bounds = [[x, y], [w, h]];
+	//area_util = L.rectangle(bounds, {color: "#ff7800", weight: 1});
+	area_util = L.polygon(
+		[
+			[
+				[x2,y2],[w2,y2],[w2,h2],[x2,h2]
+			],
+        	[
+        		[x,y],[w,y],[w,h],[x,h]
+        	]
+        ], lockOptions);
+	area_util.addTo(map);
+
+}
+
+setInterval(locate, 3000);
+
+map.on('locationfound', onLocationFound);
+map.on('locationerror', onLocationError);
 
 
 //mode
