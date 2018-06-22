@@ -23,6 +23,43 @@ var osm_mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 map.addLayer( L.gridLayer.pixelBattle() );
 
 
+//mode
+var editModeEl = document.getElementById('editMode');
+var navModeEl = document.getElementById('navigateMode');
+var editControlsEl = document.getElementById('editControls');
+var navControlsEl = document.getElementById('navigateControls');
+
+const Mode = {
+    EDIT : 0,
+    NAVIGATE : 1
+}
+var mode;
+
+function changeMode(m){
+	mode = m;
+	if(mode==Mode.EDIT){
+		editModeEl.classList.add("active");
+		editControlsEl.style.display = "";
+
+		navControlsEl.style.display = "none";
+		navModeEl.classList.remove("active");
+	}else if(mode==Mode.NAVIGATE){
+		navModeEl.classList.add("active");
+		navControlsEl.style.display = "";
+
+		editModeEl.classList.remove("active");
+		editControlsEl.style.display = "none";
+	}
+}
+changeMode(Mode.EDIT);
+
+editModeEl.onclick = function(event) {
+	changeMode(Mode.EDIT);
+};
+navModeEl.onclick = function(event) {
+	changeMode(Mode.NAVIGATE);
+};
+
 
 //colors
 var controlsEl = document.getElementById('controls');

@@ -55,20 +55,48 @@ canvas {
 		-webkit-box-sizing: border-box;
 	}
 
-	button {
-		background: #68B25B;
-		box-shadow: 0 3px 0 0 #6A845F;
-		color: #fff;
+	.btn {
 		outline: none;
 		cursor: pointer;
 		text-shadow: 0 1px #6A845F;
 		font-size: 16px;
-		line-height: 40px;
+		background-color: #fff;
+		border: 1px solid #ccc;
+		border-radius: 6px;
+		font-weight: 400;
+	}
+
+	.btn-toggle{
+		float: left;
+		margin-right: 20px;
+
+		.btn{
+			float: left;
+			padding: 10px;
+
+			&:first-child {
+				border-bottom-right-radius: 0;
+				border-top-right-radius: 0;
+				margin-left: 0;
+			}
+
+			&:last-child {
+				border-bottom-left-radius: 0;
+				border-top-left-radius: 0;
+			}
+
+			&.active {
+				box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+				color: #fff;
+				background-color: #3276b1;
+				border-color: #285e8e;
+				fill: #fff;
+			}
+		}
 	}
 
 	#revealColorSelect {
-		border: none;
-		border-radius: 5px;
+		line-height: 40px;
 		padding: 2px 15px;
 		font-size: 30px;
 		float: left;
@@ -102,12 +130,10 @@ canvas {
 		}
 
 		button {
-			border: none;
-			border-top: 1px solid #6A845F;
-			border-radius: 0 0 5px 5px;
 			clear: both;
-			padding: 5px 10px;
 			width: 305px;
+			height: 40px;
+			border-radius: 0 0 5px 5px;
 		}
 	}
 
