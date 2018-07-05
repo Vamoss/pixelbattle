@@ -46,13 +46,14 @@ canvas {
 	.color {
 		float: left;
 		margin: 2px 5px 10px;
-	}
-
-	.selected {
 		border: 4px solid #fff;
 		box-sizing: border-box;
 		-moz-box-sizing: border-box;
 		-webkit-box-sizing: border-box;
+	}
+
+	.selected {
+		border: 0px;
 	}
 
 	.btn {
@@ -110,7 +111,7 @@ canvas {
 		padding: 10px;
 		width: 305px;
 		position: absolute;
-		top: -225px;
+		top: -180px;
 		left: 10px;
 		z-index: 2;
 		display: none;
@@ -144,7 +145,7 @@ canvas {
 		box-shadow: none;
 		float: left;
 		border: none;
-		margin: 10px 20px 50px 10px;
+		margin: 10px 20px 20px 10px;
 	}
 
 	#sizeSelect {
@@ -170,5 +171,33 @@ canvas {
 			position: relative;
 			top: 2px;
 		}
+	}
+
+	input[type=range] {
+	    -webkit-appearance: none;
+	    -moz-appearance: none;
+	    border-radius: 50px;
+	    height: 15px;
+	    background: #CCC;
+	    outline: none;
+
+		&::-webkit-slider-thumb {
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    appearance: none;
+		    width: 25px;
+		    height: 25px;
+		    border-radius: 50px;
+		    background: #3276b1;
+		    cursor: pointer;
+		}
+
+		&#time{
+			margin-top: 10px;
+		}
+	}
+
+	#timeLabel{
+
 	}
 }

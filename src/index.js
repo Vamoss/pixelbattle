@@ -102,6 +102,34 @@ map.on('locationfound', onLocationFound);
 map.on('locationerror', onLocationError);
 
 
+//timeline
+var timeEl = document.getElementById('time');
+var timeLabelEl = document.getElementById('timeLabel');
+var beginDate = new Date('Mar 12, 2018').getTime();
+var endDate = new Date().getTime() + (1000*60*60*24);
+window.time = endDate;
+function pad2(number) {
+   return (number < 10 ? '0' : '') + number
+}
+function formatDate(date){
+	var dateFormatted = pad2(date.getDay())+"-"+pad2(date.getMonth())+"-"+date.getFullYear()+" "+pad2(date.getHours())+":"+pad2(date.getMinutes());
+	return dateFormatted;
+}
+function updateLabel(){
+	var time =  beginDate + (endDate - beginDate) * timeEl.value;
+	var date = new Date(time);
+	timeLabelEl.innerHTML = formatDate(new Date(date));
+}
+function updateTime(){
+	var prevTime = window.time;
+	window.time =  beginDate + (endDate - beginDate) * timeEl.value;
+	if(window.time!=prevTime) pixelBattle.redraw();
+}
+timeEl.oninput= e => updateLabel();
+timeEl.onchange= e => updateTime();
+updateLabel();
+updateTime();
+
 //mode
 var editModeEl = document.getElementById('editMode');
 var navModeEl = document.getElementById('navigateMode');
@@ -122,6 +150,10 @@ function changeMode(m){
 
 		navControlsEl.style.display = "none";
 		navModeEl.classList.remove("active");
+
+		timeEl.value = 1;
+		updateLabel();
+		updateTime();
 
 		pixelBattle.enable();
 
@@ -241,6 +273,7 @@ addNewColorEl.onclick = function(event){
 
 function resize(){
 	mapEl.style.height = (window.innerHeight - controlsEl.clientHeight) + 'px';
+	timeEl.style.width = (window.innerWidth - 130) + 'px';
 }
 window.onresize = resize;
 resize();

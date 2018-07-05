@@ -72,7 +72,7 @@ class DB extends EventEmitter {
 		for(var x=0; x<perLine; x++){
 			for(var y=0; y<perLine; y++){
 				var id = (xx + x) + ':' + (yy + y);
-				if(this.data[id]){
+				if(this.data[id] && this.data[id].time<=window.time){
 					aData.push(this.data[id]);
 				}
 			}
