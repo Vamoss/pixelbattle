@@ -15,8 +15,9 @@ var map = L.map('map', {
 });
 map.setView([-22.9707, -43.1823], 15);
 
-var osm_mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+var osm_mapnik = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 	maxZoom: map.getMaxZoom(),
+	subdomains:['mt0','mt1','mt2','mt3'],
 	attribution: '&copy; OSM Mapnik <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
