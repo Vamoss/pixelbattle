@@ -32,6 +32,7 @@ lockLayer.addTo(map);
 var user_location = {};
 var area_util;
 function onLocationFound(e) {
+	if(autoLocationIntervalId==-1) return;
 	user_location = e.latlng;
 	map.setView(user_location)
 	blockView(user_location);
@@ -41,6 +42,7 @@ function onLocationFound(e) {
 }
 
 function onLocationError(e) {
+	if(autoLocationIntervalId==-1) return;
 	console.log(e.message);
 	map.addLayer(lockLayer);
 }
@@ -81,7 +83,19 @@ function blockView(latlng){
 
 }
 
-setInterval(locate, 3000);
+var autoLocationIntervalId = -1;
+function startAutoLocation(){
+	if(autoLocationIntervalId!=-1)
+		clearInterval(autoLocationIntervalId);
+	autoLocationIntervalId = setInterval(locate, 3000);
+	locate();
+}
+startAutoLocation();
+
+function stopAutoLocation(){
+	clearInterval(autoLocationIntervalId);
+	autoLocationIntervalId = -1;
+}
 
 map.on('locationfound', onLocationFound);
 map.on('locationerror', onLocationError);
@@ -107,12 +121,23 @@ function changeMode(m){
 
 		navControlsEl.style.display = "none";
 		navModeEl.classList.remove("active");
+
+		pixelBattle.enable();
+
+		startAutoLocation();
 	}else if(mode==Mode.NAVIGATE){
 		navModeEl.classList.add("active");
 		navControlsEl.style.display = "";
 
 		editModeEl.classList.remove("active");
 		editControlsEl.style.display = "none";
+
+		pixelBattle.disable();
+		
+		map.removeLayer(lockLayer);
+		if(area_util) map.removeLayer(area_util);
+
+		stopAutoLocation();
 	}
 }
 changeMode(Mode.EDIT);
