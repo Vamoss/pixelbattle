@@ -18,6 +18,8 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	DB: new DB(),
 
+	enabled: true,
+
 	//when true, it creates a <div> that will contain <canvas>
 	//when false, the <canvas> will be the only element
 	debug: false,
@@ -114,6 +116,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	},
 
 	onMouseMove: function(event, tile){
+		if(!this.enabled) return;
 		tile.setAttribute('data-mouse-over', "true");
 		var pos = this.getMouseXY(event, tile);
 		this.mouse = new Point(pos.x, pos.y);
@@ -121,11 +124,13 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	},
 
 	onMouseLeave: function(event, tile){
+		if(!this.enabled) return;
 		tile.setAttribute('data-mouse-over', "false");
   		this.draw(tile);
 	},
 
 	onMouseClick: function(event, tile){
+		if(!this.enabled) return;
 		var coords = this.getCoords(tile);
 
 		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
@@ -228,6 +233,14 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 			context.fill();
 		}
 	},
+
+	enable(){
+		this.enabled = true;
+	},
+
+	disable(){
+		this.enabled = false;
+	}
 });
 
 L.gridLayer.pixelBattle = function(opts) {
