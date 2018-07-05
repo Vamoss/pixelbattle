@@ -228,7 +228,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 			var mouseX = Math.floor((this.mouse.x)/size)*size;
 			var mouseY = Math.floor((this.mouse.y)/size)*size;
 			context.beginPath();
-			context.fillStyle = 'rgba(0,0,0,0.7)';
+			context.fillStyle = 'rgba('+window.color.r+','+window.color.g+','+window.color.b+',0.7';
 			context.rect(mouseX, mouseY, size, size);
 			context.fill();
 		}
