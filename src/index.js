@@ -222,13 +222,36 @@ function addColor(value){
 	colorEl.style.backgroundColor = value;
 	colorEl.onclick = selectColor;
 	colorsEl.appendChild(colorEl);
+	saveToLocalStorage();
 }
 
-//add default colors and select the first
-addColor('#fc4c4f');
-addColor('#4fa3fc');
-addColor('#ecd13f');
-colorsEl.getElementsByTagName('div')[0].click();
+function loadFromLocalStorage(){
+	var colorsJSON = localStorage.getItem('pixelBattleColors');
+	var colors = JSON.parse(colorsJSON);
+	if(Array.isArray(colors)){
+		for(var i=0; i<colors.length; i++)
+			addColor("rgb(" + colors[i].r + "," + colors[i].g + ", " + colors[i].b + ")");
+	}else{
+		//add default colors and select the first
+		addColor('#fc4c4f');
+		addColor('#4fa3fc');
+		addColor('#ecd13f');
+	}
+	colorsEl.getElementsByTagName('div')[0].click();
+}
+loadFromLocalStorage();
+
+function saveToLocalStorage(){
+	var colors = [];
+	var colorDivs = colorsEl.getElementsByTagName('div');
+	for(var i=0; i<colorDivs.length; i++){
+		console.log(colorDivs[i]);
+		colors.push(getRGB(colorDivs[i].style.backgroundColor));
+	}
+	if(Array.isArray(colors)){
+		localStorage.setItem('pixelBattleColors', JSON.stringify(colors));
+	}
+}
 
 //when "New Color" is pressed
 revealColorSelectEl.onclick = function(event){
