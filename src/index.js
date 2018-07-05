@@ -158,6 +158,7 @@ function changeMode(m){
 		pixelBattle.enable();
 
 		startAutoLocation();
+		map.addLayer(lockLayer);
 	}else if(mode==Mode.NAVIGATE){
 		navModeEl.classList.add("active");
 		navControlsEl.style.display = "";
