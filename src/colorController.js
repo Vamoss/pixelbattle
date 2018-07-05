@@ -78,7 +78,34 @@ class colorController extends EventEmitter {
 		var colorEl = document.createElement('div');
 		colorEl.className = 'color';
 		colorEl.style.backgroundColor = value;
-		colorEl.onclick = event => this.selectColor.call(this, event);
+		
+		//hold to remove
+		var isPressing = false;
+		var holded = false;
+		function onHold(event){
+			if(isPressing) {
+				holded = true;
+				if(confirm('Remover cor?')) {
+					colorEl.parentNode.removeChild(colorEl);
+					this.saveToLocalStorage();
+				}
+			}
+		}
+		colorEl.onmousedown = colorEl.ontouchstart = event => {
+			isPressing = true;
+			holded = false;
+			setTimeout(() => onHold.call(this), 1000);
+		};
+		colorEl.onmouseup = colorEl.ontouchend = event => isPressing = false;
+		colorEl.onmouseleave = event => isPressing = false;
+
+		//click to select
+		colorEl.onclick = event => {
+			if(!holded)
+				this.selectColor.call(this, event)
+			else
+				holded = false;
+		}
 		this.colorsEl.appendChild(colorEl);
 		this.saveToLocalStorage();
 	}
