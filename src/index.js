@@ -15,6 +15,7 @@ var map = L.map('map', {
     maxZoom: 19
 });
 map.setView([-22.9707, -43.1823], 15);
+map.doubleClickZoom.disable(); 
 
 var osm_mapnik = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 	maxZoom: map.getMaxZoom(),
