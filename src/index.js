@@ -37,8 +37,8 @@ var area_util;
 function onLocationFound(e) {
 	if(autoLocationIntervalId==-1) return;
 	user_location = e.latlng;
-	map.setView(user_location)
 	blockView(user_location);
+	shouldCentralize(user_location);
 	map.removeLayer(lockLayer);
 	// zoom the map to the rectangle bounds
 	//map.fitBounds(bounds);
@@ -54,9 +54,26 @@ function locate() {
 	map.locate();
 }
 
+function shouldCentralize(user_location){
+	var size = 0.001;
+	var x1 = user_location.lng-size;
+	var y1 = user_location.lat+size;
+	var w1 = user_location.lng+size;
+	var h1 = user_location.lat-size;
+
+	var bounds = map.getBounds();
+	var x2 = bounds._southWest.lng;
+	var y2 = bounds._northEast.lat;
+	var w2 = bounds._northEast.lng;
+	var h2 = bounds._southWest.lat;
+
+	if(x1 > w2 || y1 < h2 || w1 < x2 || h1 > y2){
+    	map.setView(user_location);
+	}
+}
+
 function blockView(latlng){
 	var size = 0.001;
-	
 	var x = latlng.lat-size;
 	var y = latlng.lng-size;
 	var w = latlng.lat+size;
