@@ -124,14 +124,14 @@ map.on('locationerror', onLocationError);
 //timeline
 var timeEl = document.getElementById('time');
 var timeLabelEl = document.getElementById('timeLabel');
-var beginDate = new Date('Mar 12, 2018').getTime();
+var beginDate = new Date(2018, 2, 26).getTime();
 var endDate = new Date().getTime() + (1000*60*60*24);
 window.time = endDate;
 function pad2(number) {
    return (number < 10 ? '0' : '') + number
 }
 function formatDate(date){
-	var dateFormatted = pad2(date.getDay())+"-"+pad2(date.getMonth())+"-"+date.getFullYear()+" "+pad2(date.getHours())+":"+pad2(date.getMinutes());
+	var dateFormatted = pad2(date.getDate())+"-"+pad2(date.getMonth())+"-"+date.getFullYear()+" "+pad2(date.getHours())+":"+pad2(date.getMinutes());
 	return dateFormatted;
 }
 function updateLabel(){
