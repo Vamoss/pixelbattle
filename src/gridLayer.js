@@ -184,7 +184,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	draw: function(tile) {
 		var coords = this.getCoords(tile);
-	
+		
 		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
 		
 		var tileSize = this.getTileSize();
@@ -199,18 +199,20 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		context.clearRect(0, 0, tileSize.x, tileSize.y);
 
 		//grid
-		context.strokeStyle = 'rgba(0,0,0,0.3)';
-		context.beginPath();
-		for (var x = 0; x <= tileSize.x; x += size) {
-			context.moveTo(x, 0);
-			context.lineTo(x, tileSize.y);
+		if(coords.z >= 15) {
+			context.strokeStyle = 'rgba(0,0,0,0.3)';
+			context.beginPath();
+			for (var x = 0; x <= tileSize.x; x += size) {
+				context.moveTo(x, 0);
+				context.lineTo(x, tileSize.y);
+			}
+			for (var y = 0; y <= tileSize.y; y += size) {
+				context.moveTo(0, y);
+				context.lineTo(tileSize.x, y);
+			}
+			context.stroke();
 		}
-		for (var y = 0; y <= tileSize.y; y += size) {
-			context.moveTo(0, y);
-			context.lineTo(tileSize.x, y);
-		}
-		context.stroke();
-
+		
 		//pixels painted
 		var data = this.DB.getData(coords, perLine);
 		for(var i=0; i<data.length; i++){

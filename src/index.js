@@ -11,7 +11,7 @@ mapEl.id = 'map';
 document.body.appendChild(mapEl);
 
 var map = L.map('map', {
-	minZoom: 15,
+	minZoom: 13,
     maxZoom: 19
 });
 map.setView([-22.9707, -43.1823], 15);
