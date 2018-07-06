@@ -5,7 +5,6 @@ class colorController extends EventEmitter {
 		super();
 		//colors
 		this.colorsEl = document.getElementById('colors');
-		console.log(this.colorsEl);
 		this.revealColorSelectEl = document.getElementById('revealColorSelect');
 		this.colorSelectEl = document.getElementById('colorSelect');
 		this.newColorEl = document.getElementById('newColor');
@@ -62,7 +61,6 @@ class colorController extends EventEmitter {
 	}
 
 	selectColor(event){
-		console.log(this.colorsEl);
 		var aColorEl = this.colorsEl.getElementsByTagName('div');
 		for (var i = 0; i < aColorEl.length; i++) {
 			if(event.target==aColorEl[i]){
@@ -74,38 +72,54 @@ class colorController extends EventEmitter {
 		}
 	}
 
+	//hold to remove
+	onColorHold(event){
+		if(this.isPressing) {
+			this.holded = true;
+			if(confirm('Remover cor?')) {
+				event.target.parentNode.removeChild(event.target);
+				this.saveToLocalStorage();
+			}
+		}
+	}
+
+	startCheckHold(event){
+		this.isPressing = true;
+		this.holded = false;
+		this.holdTimeoutID = setTimeout(() => this.onColorHold.call(this, event), 1000);
+	}
+
+	cancelCheckHold(event){
+		this.isPressing = false;
+		clearTimeout(this.holdTimeoutID);
+	}
+	
+	onColorClick(event){
+		if(this.holded) return;
+		this.selectColor.call(this, event)
+		this.cancelCheckHold(event);
+	}
+
 	addColor(value){
 		var colorEl = document.createElement('div');
 		colorEl.className = 'color';
 		colorEl.style.backgroundColor = value;
 		
-		//hold to remove
-		var isPressing = false;
-		var holded = false;
-		function onHold(event){
-			if(isPressing) {
-				holded = true;
-				if(confirm('Remover cor?')) {
-					colorEl.parentNode.removeChild(colorEl);
-					this.saveToLocalStorage();
-				}
-			}
-		}
-		colorEl.onmousedown = colorEl.ontouchstart = event => {
-			isPressing = true;
-			holded = false;
-			setTimeout(() => onHold.call(this), 1000);
-		};
-		colorEl.onmouseup = colorEl.ontouchend = event => isPressing = false;
-		colorEl.onmouseleave = event => isPressing = false;
-
-		//click to select
-		colorEl.onclick = event => {
-			if(!holded)
-				this.selectColor.call(this, event)
-			else
-				holded = false;
-		}
+		if('ontouchstart' in window)
+			colorEl.ontouchstart = event => this.startCheckHold.call(this, event);
+		else
+			colorEl.onmousedown = event => this.startCheckHold.call(this, event);
+		
+		if('ontouchend' in window)
+			colorEl.ontouchend = event => this.onColorClick.call(this, event);
+		else
+			colorEl.onmouseup = event => this.onColorClick.call(this, event);
+		
+		if('ontouchcancel' in window)
+			colorEl.ontouchcancel = event => this.cancelCheckHold.call(this, event);
+		else
+			colorEl.onmouseleave = event => this.cancelCheckHold.call(this, event);
+		
 		this.colorsEl.appendChild(colorEl);
 		this.saveToLocalStorage();
 	}
@@ -124,7 +138,7 @@ class colorController extends EventEmitter {
 			this.addColor('#4fa3fc');
 			this.addColor('#ecd13f');
 		}
-		this.colorsEl.getElementsByTagName('div')[0].click();
+		this.selectColor({target:this.colorsEl.getElementsByTagName('div')[0]});
 	}
 	
 	saveToLocalStorage(){
