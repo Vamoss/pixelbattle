@@ -28,19 +28,20 @@
   "homepage": "https://github.com/Vamoss/pixelbattle#readme",
   "devDependencies": {
     "css-loader": "^0.28.10",
+    "dotenv-webpack": "^1.5.5",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "firebase": "^4.11.0",
+    "firebase-tools": "^3.19.3",
     "html-webpack-plugin": "^3.0.6",
     "less": "^3.0.1",
     "less-loader": "^4.1.0",
     "style-loader": "^0.20.3",
-    "webpack": "^4.1.1"
-  },
-  "dependencies": {
-    "dotenv-webpack": "^1.5.5",
-    "firebase": "^4.11.0",
-    "leaflet": "^1.3.1",
-    "lodash": "^4.17.5",
+    "uglifyjs-webpack-plugin": "^1.2.7",
+    "webpack": "^4.1.1",
     "webpack-cli": "^2.0.11",
     "webpack-dev-server": "^3.1.1"
+  },
+  "dependencies": {
+    "leaflet": "^1.3.1"
   }
 }

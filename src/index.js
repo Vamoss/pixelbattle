@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import './gridLayer.js';
 import colorController from './colorController.js';
 

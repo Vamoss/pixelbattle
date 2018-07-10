@@ -1,6 +1,7 @@
 const EventEmitter = require('events')
 
-var firebase = require('firebase');
+var firebase = require('firebase/app');
+require('firebase/database');
 
 class DB extends EventEmitter {
 	constructor () {

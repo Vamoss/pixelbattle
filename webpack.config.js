@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const Dotenv = require('dotenv-webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
 	entry: {
@@ -24,8 +25,16 @@ module.exports = {
 			template: './src/index.html'
 		}),
 		new ExtractTextPlugin('[name]'),
-		new Dotenv(),
+		new Dotenv()
 	],
+	optimization: {
+		minimizer: [
+			new UglifyJSPlugin({
+				extractComments: true,
+				sourceMap: false
+			})
+		]
+	},
 	devServer: {
 		contentBase: "./docs"
 	},
