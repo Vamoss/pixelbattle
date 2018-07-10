@@ -16,7 +16,7 @@ var map = L.map('map', {
 map.setView([-22.9707, -43.1823], 15);
 map.doubleClickZoom.disable(); 
 
-var osm_mapnik = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+var osm_mapnik = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 	maxZoom: map.getMaxZoom(),
 	subdomains:['mt0','mt1','mt2','mt3'],
 	attribution: '&copy; OSM Mapnik <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
