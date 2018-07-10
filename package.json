@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "init": "firebase init",
+    "dev": "webpack-dev-server --mode development --open --host 0.0.0.0",
     "build": "webpack --mode production",
-    "start": "webpack-dev-server --mode development --open --host 0.0.0.0"
+    "deploy": "firebase deploy"
   },
   "repository": {
     "type": "git",
