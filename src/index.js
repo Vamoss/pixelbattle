@@ -1,3 +1,9 @@
+//TEMP
+//redirect from github.io
+if(window.location.href.indexOf("github.io")>=0){
+	window.location.href = "https://pixelbattle-vamoss.firebaseapp.com";
+}
+
 import './gridLayer.js';
 import colorController from './colorController.js';
 
