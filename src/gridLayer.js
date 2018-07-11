@@ -28,10 +28,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	onAdd: function(map) {
 		this.maxZoom = map.getMaxZoom();
 
-		var t = this;
-		this.DB.on('onData', function(data){
-			t.onDataChange.call(t, data)
-		});
+		this.DB.on('onData', data => this.onDataChange.call(this, data));
 
 		//call after initialization
 		L.GridLayer.prototype.onAdd.call(this, map);
@@ -69,41 +66,41 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 		//enable mouse move
 		tile.style.pointerEvents = "auto";//default is none
-		var t = this;
-		tile.onclick = function(event) {
-			//prevent click when user has dragged
-			if(t.initDragX == event.pageX && t.initDragY == event.pageY){
-				t.onMouseClick.call(t, event, tile);
-			}
-		}
 
-		tile.onmousedown = function(event) {
-			t.initDragX = event.pageX;
-			t.initDragY = event.pageY;
-		}
-
-		tile.onmousemove = function(event) {
-			t.onMouseMove.call(t, event, tile);
-		}
-
-		tile.onmouseleave = function(event) {
-			t.onMouseLeave.call(t, event, tile);
-		}
-
-		tile.addEventListener('redraw', function(event) {
-			t.onTileDataChange(tile, event.detail);
-		}, false);
+		if('ontouchstart' in window)
+			tile.ontouchstart = event => this.onMouseDown.call(this, event, tile);
+		else
+			tile.onmousedown = event => this.onMouseDown.call(this, event, tile);
+		
+		if('ontouchend' in window)
+			tile.ontouchend = event => this.onMouseClick.call(this, event, tile);
+		else
+			tile.onmouseup = event => this.onMouseClick.call(this, event, tile);
+		
+		if('ontouchmove' in window)
+			tile.ontouchmove = event => this.onMouseMove.call(this, event, tile);
+		else
+			tile.onmousemove = event => this.onMouseMove.call(this, event, tile);
+		
+		if('ontouchcancel' in window)
+			tile.ontouchcancel = event => this.onMouseLeave.call(this, event, tile);
+		else
+			tile.onmouseleave = event => this.onMouseLeave.call(this, event, tile);
+		
+		tile.addEventListener('redraw', event => this.onTileDataChange(tile, event.detail));
 	},
 
-	getMouseXY: function(evt, element) {
+	getMouseXY: function(event, element) {
 		var rect = element.getBoundingClientRect();
 		var scrollTop = document.documentElement.scrollTop?document.documentElement.scrollTop:document.body.scrollTop;
 		var scrollLeft = document.documentElement.scrollLeft?document.documentElement.scrollLeft:document.body.scrollLeft;
 		var elementLeft = rect.left+scrollLeft;  
 		var elementTop = rect.top+scrollTop;
 
-		var x = evt.pageX-elementLeft;
-		var y = evt.pageY-elementTop;
+		var mouseX = event.touches ? event.touches[0].pageX : event.pageX;
+		var mouseY = event.touches ? event.touches[0].pageY : event.pageY;
+		var x = mouseX-elementLeft;
+		var y = mouseY-elementTop;
 
 		return {x:x, y:y};
 	},
@@ -115,9 +112,16 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		return coords;
 	},
 
+	onMouseDown(event, tile) {
+		this.initDrag = this.getMouseXY(event, tile);
+		this.mouse = new Point(this.initDrag.x, this.initDrag.y);
+  		this.draw(tile);
+	},
+
 	onMouseMove: function(event, tile){
 		if(!this.enabled) return;
-		tile.setAttribute('data-mouse-over', "true");
+		if(event.type=="mousemove")
+			tile.setAttribute('data-mouse-over', "true");
 		var pos = this.getMouseXY(event, tile);
 		this.mouse = new Point(pos.x, pos.y);
   		this.draw(tile);
@@ -131,19 +135,22 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	onMouseClick: function(event, tile){
 		if(!this.enabled) return;
-		var coords = this.getCoords(tile);
 
-		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
-		
-		var tileSize = this.getTileSize();
-		var size = tileSize.x/perLine;
+		//prevent click when user has dragged
+		if(this.initDrag.x == this.mouse.x && this.initDrag.y == this.mouse.y){
+			var coords = this.getCoords(tile);
 
-		var idX = coords.x * perLine + Math.floor(this.mouse.x/size);
-		var idY = coords.y * perLine + Math.floor(this.mouse.y/size);
-		
-		this.DB.save(idX, idY);
-		this.draw(tile);
+			var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
+			
+			var tileSize = this.getTileSize();
+			var size = tileSize.x/perLine;
 
+			var idX = coords.x * perLine + Math.floor(this.mouse.x/size);
+			var idY = coords.y * perLine + Math.floor(this.mouse.y/size);
+			
+			this.DB.save(idX, idY);
+			this.draw(tile);
+		}
 	},
 
 	onDataChange: function(data){
@@ -212,7 +219,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 			}
 			context.stroke();
 		}
-		
+
 		//pixels painted
 		var data = this.DB.getData(coords, perLine);
 		for(var i=0; i<data.length; i++){
