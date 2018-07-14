@@ -1,6 +1,6 @@
 
 # PixelBattle
-https://pixelbattle-vamoss.firebaseapp.com/
+https://pixelbattle.com.br
 
 ![Screenshot](/screenshot.png)
 

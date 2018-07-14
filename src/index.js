@@ -1,7 +1,5 @@
-//TEMP
-//redirect from github.io
-if(window.location.href.indexOf("github.io")>=0){
-	window.location.href = "https://pixelbattle-vamoss.firebaseapp.com";
+if(process.env.NODE_ENV === 'production' && window.location.hostname.indexOf("pixelbattle.com.br")==-1){
+	window.location.href = "https://pixelbattle.com.br";
 }
 
 import './gridLayer.js';
