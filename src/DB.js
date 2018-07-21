@@ -1,12 +1,13 @@
 const EventEmitter = require('events')
-
 var firebase = require('firebase/app');
 require('firebase/database');
 
 class DB extends EventEmitter {
 	constructor () {
 		super();
+		this.dataLoaded = false;
 		this.data = {}
+		this.realtimeCallback = () => {};
 
 		var config = {
 			apiKey: process.env.API_KEY,
@@ -18,39 +19,41 @@ class DB extends EventEmitter {
 		};
 		var app = firebase.initializeApp(config);
 		this.pixelsRef = firebase.app().database().ref('/pixels');
-		var t = this;
-
-		//TODO
-		//query only necessary data visible in the map
-		//only the last per pixel
-
-		var initialDataLoaded = false;
-		//load the first time
-		this.pixelsRef
-		.once('value', function(snapshot) {
-			initialDataLoaded = true;
-			var values = snapshot.val();
-			for (var i in values) {
-				var id = values[i].x + ':' + values[i].y;
-				t.data[id] = values[i];
-			}
-			t.emit('onData', values)
-		});
-
-		//when some child is changed
-		this.pixelsRef
-		.limitToLast(1)
-		.on('child_added', function(snapshot) {
-			if(!initialDataLoaded) return;
-			var value = snapshot.val();
-			var id = value.x + ':' + value.y;
-			t.data[id] = value;
-			t.emit('onData', {0:value})
-		});
 	}
 
-	load(tile){
+	onLoad (snapshot) {
+		this.dataLoaded = true;
 
+		var values = snapshot.val();
+		//console.log("Loaded:", values);
+		for (var i in values) {
+			var id = values[i].x + ':' + values[i].y;
+			this.data[id] = values[i];
+		}
+		this.emit('onData', values)
+	}
+
+	onNewData(snapshot){
+		if(!this.dataLoaded) return;
+		var value = snapshot.val();
+		var id = value.x + ':' + value.y;
+		this.data[id] = value;
+		this.emit('onData', {0:value})
+	}
+
+	load(idX, idY){
+		//remove previous listener for when new data is added
+		if(this.dataLoaded)
+			this.pixelsRef.off('child_added', this.realtimeCallback);
+		else
+			//load the first time
+			this.pixelsRef.once('value', snapshot => {
+				this.onLoad.call(this, snapshot);
+			});
+		
+		//when new data is added
+		this.realtimeCallback = snapshot => this.onNewData.call(this, snapshot);
+		this.pixelsRef.limitToLast(1).on('child_added', this.realtimeCallback);
 	}
 
 	save(idX, idY){

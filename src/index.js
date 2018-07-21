@@ -2,11 +2,11 @@ if(process.env.NODE_ENV === 'production' && window.location.hostname.indexOf("pi
 	window.location.href = "https://pixelbattle.com.br";
 }
 
+import Utils from './Utils.js';
 import './gridLayer.js';
 import colorController from './colorController.js';
 
 var L = require('leaflet')
-
 
 //map
 var mapEl = document.createElement('div');
@@ -35,7 +35,8 @@ var lockLayer = L.rectangle([[-90, -180], [90, 180]], lockOptions);
 lockLayer.addTo(map);
 
 //user location
-var user_location = {};
+var user_location = L.latLng(0, 0);
+var user_location_loaded = L.latLng(0, 0);
 var area_util;
 function onLocationFound(e) {
 	if(autoLocationIntervalId==-1) return;
@@ -43,6 +44,26 @@ function onLocationFound(e) {
 	blockView(user_location);
 	shouldCentralize(user_location);
 	map.removeLayer(lockLayer);
+
+	//TODO
+	//1- DONE - verificar se esta na mesma posicao e nao deixar passar
+	//2- fazer a area ao redor
+	//3- filtrar a query
+	//4- no modo visualizacao passar a localizacao escrolada e implementar o mesmo algoritimo
+	var distance = user_location_loaded.distanceTo(user_location);
+	//console.log("Distance: ", distance);
+
+	if(distance<10000) return;//Rio de Janeiro => Duque de Caxias
+	user_location_loaded = user_location;
+
+	//console.log("Loading: ", user_location);
+	var coords = Utils.latLongToCoord(user_location, map.getZoom(), map.options.crs);
+	var perLine = pixelBattle.getTilePerLine(map.getZoom());
+	var tileX = coords.x * perLine;
+	var tileY = coords.y * perLine;
+	//console.log(coords);
+	//console.log(tileX, tileY);
+	pixelBattle.DB.load(tileX, tileY);
 	// zoom the map to the rectangle bounds
 	//map.fitBounds(bounds);
 }

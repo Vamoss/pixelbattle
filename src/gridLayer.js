@@ -1,5 +1,6 @@
 import {Point} from '../node_modules/leaflet/src/geometry/Point';
 import DB from './DB.js'
+import Utils from './Utils.js';
 var L = require('leaflet')
 	
 //suppose maximum zoom is 19
@@ -29,6 +30,8 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		this.maxZoom = map.getMaxZoom();
 
 		this.DB.on('onData', data => this.onDataChange.call(this, data));
+
+		//this.addEventListener('tileunload', event => console.log(event));
 
 		//call after initialization
 		L.GridLayer.prototype.onAdd.call(this, map);
@@ -86,7 +89,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 			tile.ontouchcancel = event => this.onMouseLeave.call(this, event, tile);
 		else
 			tile.onmouseleave = event => this.onMouseLeave.call(this, event, tile);
-		
+
 		tile.addEventListener('redraw', event => this.onTileDataChange(tile, event.detail));
 	},
 
@@ -140,7 +143,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		if(this.initDrag.x == this.mouse.x && this.initDrag.y == this.mouse.y){
 			var coords = this.getCoords(tile);
 
-			var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
+			var perLine = this.getTilePerLine(coords.z);
 			
 			var tileSize = this.getTileSize();
 			var size = tileSize.x/perLine;
@@ -153,6 +156,10 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		}
 	},
 
+	getTilePerLine(zoom){
+		return this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-zoom));
+	},
+
 	onDataChange: function(data){
 		var event = new CustomEvent('redraw', {detail: data});
 		for(var tile in this._tiles){
@@ -162,7 +169,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	onTileDataChange: function(tile, data){
 		var coords = this.getCoords(tile);
-		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
+		var perLine = this.getTilePerLine(coords.z);
 		var tileX = coords.x * perLine;
 		var tileY = coords.y * perLine;
 		for(var i in data){
@@ -192,7 +199,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	draw: function(tile) {
 		var coords = this.getCoords(tile);
 		
-		var perLine = this.tilesInMaximumZoom * Math.pow(2, (this.maxZoom-coords.z));
+		var perLine = this.getTilePerLine(coords.z);
 		
 		var tileSize = this.getTileSize();
 		var size = tileSize.x/perLine;
