@@ -40,6 +40,7 @@ var user_location_loaded = L.latLng(0, 0);
 var area_util;
 function onLocationFound(e) {
 	if(autoLocationIntervalId==-1) return;
+	gpsErrorEl.style.display = "none";
 	user_location = e.latlng;
 	blockView(user_location);
 	shouldCentralize(user_location);
@@ -68,8 +69,10 @@ function onLocationFound(e) {
 	//map.fitBounds(bounds);
 }
 
+var gpsErrorEl = document.getElementById("gpsError");
 function onLocationError(e) {
 	if(autoLocationIntervalId==-1) return;
+	gpsErrorEl.style.display = "block";
 	console.log(e.message);
 	map.addLayer(lockLayer);
 }
