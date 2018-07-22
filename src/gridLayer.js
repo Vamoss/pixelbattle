@@ -1,6 +1,7 @@
 import {Point} from '../node_modules/leaflet/src/geometry/Point';
 import DB from './DB.js'
 import Utils from './Utils.js';
+import SnakeLoader from './Snake.js'
 var L = require('leaflet')
 	
 //suppose maximum zoom is 19
@@ -9,6 +10,8 @@ var L = require('leaflet')
 //coords.z = current zoom
 
 L.GridLayer.PixelBattle = L.GridLayer.extend({
+	map: null,
+
 	//probably 19
 	maxZoom: -1,
 
@@ -25,14 +28,26 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	//when false, the <canvas> will be the only element
 	debug: false,
 
+	loaders: [],
+
+	loaded: false,
+
+	loaderLastUpdate: 0,
+
 	//called once
 	onAdd: function(map) {
+		this.map = map;
+
 		this.maxZoom = map.getMaxZoom();
 
 		this.DB.on('onData', data => this.onDataChange.call(this, data));
 
 		//this.addEventListener('tileunload', event => console.log(event));
 
+		if(!this.loaded){
+			window.requestAnimationFrame(time => this.drawLoaders.call(this, time));
+		}
+		
 		//call after initialization
 		L.GridLayer.prototype.onAdd.call(this, map);
 	},
@@ -57,7 +72,15 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		}
 
 		tile.setAttribute('data-coord', JSON.stringify(coords));
-		
+
+		if(!this.loaded){
+			tile.setAttribute('data-loader-index', this.loaders.length);
+			var zoom = coords.z;
+			if(zoom < this.map.getMinZoom()+2) zoom = this.map.getMinZoom() + 2;
+			var perLine = this.getTilePerLine(zoom);
+			this.loaders.push(new SnakeLoader(tileSize.x, tileSize.y, perLine));
+		}
+
 		this.draw(tile);
 
 		return tile;
@@ -161,6 +184,16 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	},
 
 	onDataChange: function(data){
+		if(!this.loaded){
+			this.loaded = true;
+
+			//delete all loaders
+			for(var i=this.loaders.length-1; i>=0; i--){
+				delete this.loaders[i];
+			}
+			this.loaders = [];
+		}
+
 		var event = new CustomEvent('redraw', {detail: data});
 		for(var tile in this._tiles){
 			this._tiles[tile].el.dispatchEvent(event);
@@ -256,6 +289,33 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	disable(){
 		this.enabled = false;
+	},
+
+	drawLoaders(time){
+		//transform minZoom to 1000ms/60fps = 16ms and maxZoom to 1000ms/3fps = 333ms
+		var minimalInterval = Utils.map(this.map.getZoom(), this.map.getMinZoom(), this.map.getMaxZoom(), 16, 333);
+		if(time-this.loaderLastUpdate>minimalInterval) {
+			this.loaderLastUpdate = time;
+			Object.keys(this._tiles).forEach(key => {
+				var tile = this._tiles[key].el;
+				var dataLoaderIndex = tile.getAttribute('data-loader-index');
+				var loader = this.loaders[dataLoaderIndex];
+
+				var context;
+				if(this.debug){
+					context = tile.querySelector('canvas').getContext('2d');
+				}else{
+					context = tile.getContext('2d');
+				}
+
+				loader.update();
+				loader.draw(context);
+			});
+		}
+		
+		if(!this.loaded){
+			window.requestAnimationFrame(time => this.drawLoaders.call(this, time));
+		}
 	}
 });
 
