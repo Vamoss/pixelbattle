@@ -30,7 +30,8 @@ class DB extends EventEmitter {
 		//console.log("Loaded:", values);
 		for (var i in values) {
 			var id = values[i].x + ':' + values[i].y;
-			this.data[id] = values[i];
+			if(!this.data[id]) this.data[id] = [];
+			this.data[id].push(values[i]);
 		}
 		this.emit('onData', values)
 	}
@@ -39,7 +40,8 @@ class DB extends EventEmitter {
 		if(!this.dataLoaded) return;
 		var value = snapshot.val();
 		var id = value.x + ':' + value.y;
-		this.data[id] = value;
+		if(!this.data[id]) this.data[id] = [];
+		this.data[id].push(value);
 		this.emit('onData', {0:value})
 	}
 
@@ -95,8 +97,13 @@ class DB extends EventEmitter {
 		for(var x=0; x<perLine; x++){
 			for(var y=0; y<perLine; y++){
 				var id = (xx + x) + ':' + (yy + y);
-				if(this.data[id] && this.data[id].time<=window.time){
-					aData.push(this.data[id]);
+				if(this.data[id]){
+					for(var i=this.data[id].length-1; i>=0; i--){
+						if(this.data[id][i].time<=window.time){
+							aData.push(this.data[id][i]);
+							break;
+						}
+					}
 				}
 			}
 		}
