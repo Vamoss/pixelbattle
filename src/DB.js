@@ -9,7 +9,7 @@ class DB extends EventEmitter {
 		this.data = {}
 		this.realtimeCallback = () => {};
 
-		this.fake = true;
+		this.fake = false;
 
 		var config = {
 			apiKey: process.env.API_KEY,
