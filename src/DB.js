@@ -40,7 +40,7 @@ class DB extends EventEmitter {
 		if(!this.dataLoaded) return;
 		var value = snapshot.val();
 		var id = value.x + ':' + value.y;
-		if(!this.data[id]) this.data[id] = [];
+		if(!Array.isArray(this.data[id])) this.data[id] = [];
 		this.data[id].push(value);
 		this.emit('onData', {0:value})
 	}
