@@ -187,6 +187,11 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		if(!this.loaded){
 			this.loaded = true;
 
+			Object.keys(this._tiles).forEach(key => {
+				var tile = this._tiles[key].el;
+				this.draw(tile);
+			});
+
 			//delete all loaders
 			for(var i=this.loaders.length-1; i>=0; i--){
 				delete this.loaders[i];
@@ -292,6 +297,8 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	},
 
 	drawLoaders(time){
+		if(this.loaded) return;
+
 		//transform minZoom to 1000ms/60fps = 16ms and maxZoom to 1000ms/3fps = 333ms
 		var minimalInterval = Utils.map(this.map.getZoom(), this.map.getMinZoom(), this.map.getMaxZoom(), 16, 333);
 		if(time-this.loaderLastUpdate>minimalInterval) {
@@ -313,9 +320,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 			});
 		}
 		
-		if(!this.loaded){
-			window.requestAnimationFrame(time => this.drawLoaders.call(this, time));
-		}
+		window.requestAnimationFrame(time => this.drawLoaders.call(this, time));
 	}
 });
 
