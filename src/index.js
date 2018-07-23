@@ -64,6 +64,7 @@ function onLocationFound(e) {
 	var tileY = coords.y * perLine;
 	//console.log(coords);
 	//console.log(tileX, tileY);
+	
 	pixelBattle.DB.load(tileX, tileY);
 	// zoom the map to the rectangle bounds
 	//map.fitBounds(bounds);
@@ -137,7 +138,11 @@ function startAutoLocation(){
 	autoLocationIntervalId = setInterval(locate, 3000);
 	locate();
 }
-startAutoLocation();
+if(pixelBattle.DB.fake) {
+	pixelBattle.DB.load(0, 0);
+}else{
+	startAutoLocation();
+}
 
 function stopAutoLocation(){
 	clearInterval(autoLocationIntervalId);

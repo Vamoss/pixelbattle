@@ -9,6 +9,8 @@ class DB extends EventEmitter {
 		this.data = {}
 		this.realtimeCallback = () => {};
 
+		this.fake = true;
+
 		var config = {
 			apiKey: process.env.API_KEY,
 			authDomain: process.env.AUTH_DOMAIN,
@@ -42,6 +44,23 @@ class DB extends EventEmitter {
 	}
 
 	load(idX, idY){
+		if(this.fake){
+			console.warn("LOADING FAKE DATA");
+			var request = new XMLHttpRequest();
+			request.open('GET', './data.json', true);
+			request.onload = event => {
+				if(request.status >= 200 && request.status < 400){
+					var data = JSON.parse(request.responseText);
+					this.dataLoaded = true;
+					this.onLoad({val:function(){return data}});
+					console.log(data);
+				}else{
+					console.log("error", event);
+				}
+			}
+			request.send();
+			return;
+		}
 		//remove previous listener for when new data is added
 		if(this.dataLoaded)
 			this.pixelsRef.off('child_added', this.realtimeCallback);
