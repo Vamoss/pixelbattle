@@ -1,8 +1,12 @@
 <!doctype html>
-<html>
+<html lang="en">
 	<head>
 		<title>Pixel Battle</title>
 		<meta charset="utf-8" />
+		<meta name="description" content="Collaborate to paint your city">
+		<meta name="keywords" content="collaboration,battle,pixel,art,grid,drawing,realtime">
+		<meta name="author" content="@Vamoss">
+		<meta name="theme-color" content="#3276b">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="./assets/css/style.css" rel="stylesheet"></head>
 	<body>
@@ -10,11 +14,13 @@
 			<div class="btn-toggle" id="mode">
 				<div class="btn active" id="editMode">
 					<svg width="20" height="20" viewBox="0 0 512 512">
+						<title>Edit Mode</title>
 						<path d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"/>
 					</svg>
 				</div>
 				<div class="btn" id="navigateMode">
 					<svg viewBox="0 0 576 512" width="20" height="20">
+						<title>Navigate Mode</title>
 						<path d="M569.354 231.631C512.969 135.949 407.81 72 288 72 168.14 72 63.004 135.994 6.646 231.631a47.999 47.999 0 0 0 0 48.739C63.031 376.051 168.19 440 288 440c119.86 0 224.996-63.994 281.354-159.631a47.997 47.997 0 0 0 0-48.738zM288 392c-75.162 0-136-60.827-136-136 0-75.162 60.826-136 136-136 75.162 0 136 60.826 136 136 0 75.162-60.826 136-136 136zm104-136c0 57.438-46.562 104-104 104s-104-46.562-104-104c0-17.708 4.431-34.379 12.236-48.973l-.001.032c0 23.651 19.173 42.823 42.824 42.823s42.824-19.173 42.824-42.823c0-23.651-19.173-42.824-42.824-42.824l-.032.001C253.621 156.431 270.292 152 288 152c57.438 0 104 46.562 104 104z"/>
 					</svg>
 				</div>
@@ -52,6 +58,7 @@
 		</div>
 		<div id="gpsError">
 			<svg width="53" height="65" viewBox="0 0 106 130">
+				<title>GPS Error</title>
 				<g>
 					<rect x="46.8" y="43.5" class="st0" width="9.9" height="6.6"/>
 					<rect x="35.4" y="65.7" class="st0" width="3.9" height="1.3"/>
