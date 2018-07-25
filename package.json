@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/Vamoss/pixelbattle#readme",
   "devDependencies": {
+    "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^0.28.10",
     "dotenv-webpack": "^1.5.5",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",

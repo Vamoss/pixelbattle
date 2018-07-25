@@ -2,6 +2,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const Dotenv = require('dotenv-webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 
 module.exports = {
 	entry: {
@@ -23,7 +25,8 @@ module.exports = {
 			template: './src/index.html'
 		}),
 		new ExtractTextPlugin('[name]'),
-		new Dotenv()
+		new Dotenv(),
+		new CopyWebpackPlugin([{ from: './src/static/', to: './' }])
 	],
 	devServer: {
 		contentBase: "./docs"

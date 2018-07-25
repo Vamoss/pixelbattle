@@ -246,3 +246,9 @@ function resize(){
 }
 window.onresize = resize;
 resize();
+
+if ('serviceWorker' in navigator) {
+	navigator.serviceWorker
+			.register('./assets/js/serviceWorker.js')
+			.then(function() { console.log('Service Worker Registered'); });
+}
