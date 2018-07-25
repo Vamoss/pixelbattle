@@ -15,7 +15,7 @@ document.body.appendChild(mapEl);
 
 var map = L.map('map', {
 	minZoom: 13,
-    maxZoom: 19
+	maxZoom: 19
 });
 map.setView([-22.9707, -43.1823], 15);
 map.doubleClickZoom.disable(); 
@@ -96,7 +96,7 @@ function shouldCentralize(user_location){
 	var h2 = bounds._southWest.lat;
 
 	if(x1 > w2 || y1 < h2 || w1 < x2 || h1 > y2){
-    	map.setView(user_location);
+		map.setView(user_location);
 	}
 }
 
@@ -123,10 +123,10 @@ function blockView(latlng){
 			[
 				[x2,y2],[w2,y2],[w2,h2],[x2,h2]
 			],
-        	[
-        		[x,y],[w,y],[w,h],[x,h]
-        	]
-        ], lockOptions);
+			[
+				[x,y],[w,y],[w,h],[x,h]
+			]
+		], lockOptions);
 	area_util.addTo(map);
 
 }
@@ -188,8 +188,8 @@ var editControlsEl = document.getElementById('editControls');
 var navControlsEl = document.getElementById('navigateControls');
 
 const Mode = {
-    EDIT : 0,
-    NAVIGATE : 1
+	EDIT : 0,
+	NAVIGATE : 1
 }
 var mode;
 
@@ -247,8 +247,14 @@ function resize(){
 window.onresize = resize;
 resize();
 
-if ('serviceWorker' in navigator) {
-	navigator.serviceWorker
-			.register('./assets/js/serviceWorker.js')
-			.then(function() { console.log('Service Worker Registered'); });
+
+//service worker
+if('serviceWorker' in navigator) {
+	navigator.serviceWorker.register('./serviceWorker.js', { scope: '/' }).then(function(registration) {
+		console.log('Service Worker Registered');
+	});
+
+	navigator.serviceWorker.ready.then(function(registration) {
+		console.log('Service Worker Ready');
+	});
 }
