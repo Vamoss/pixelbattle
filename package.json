@@ -1,6 +1,6 @@
 {
   "name": "pixelbattle",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -34,6 +34,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "firebase": "^4.11.0",
     "firebase-tools": "^3.19.3",
+    "html-webpack-exclude-assets-plugin": "0.0.7",
     "html-webpack-plugin": "^3.0.6",
     "less": "^3.0.1",
     "less-loader": "^4.1.0",

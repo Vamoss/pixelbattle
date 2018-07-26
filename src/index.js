@@ -7,6 +7,7 @@ import './gridLayer.js';
 import colorController from './colorController.js';
 
 var L = require('leaflet')
+import 'leaflet-search';
 
 //map
 var mapEl = document.createElement('div');
@@ -28,6 +29,26 @@ var osm_mapnik = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}
 
 var pixelBattle = L.gridLayer.pixelBattle();
 map.addLayer( pixelBattle );
+
+//search
+var search = new L.Control.Search({
+	url: 'http://nominatim.openstreetmap.org/search?format=json&q={s}',
+	jsonpParam: 'json_callback',
+	propertyName: 'display_name',
+	propertyLoc: ['lat','lon'],
+	marker: false,
+	autoCollapse: true,
+	autoType: false,
+	minLength: 2
+});
+search.addEventListener('search:locationfound', event => {
+	//console.log("searched", event);
+});
+map.addControl(search);
+var searchButtonEl = document.getElementsByClassName("search-button")[0];
+searchButtonEl.onclick = function(event) {
+	changeMode(Mode.NAVIGATE);
+};
 
 //lock drawing
 var lockOptions = {color: "#444444", weight: 1, fillOpacity: 0.7};
@@ -138,11 +159,6 @@ function startAutoLocation(){
 	autoLocationIntervalId = setInterval(locate, 3000);
 	locate();
 }
-if(pixelBattle.DB.fake) {
-	pixelBattle.DB.load(0, 0);
-}else{
-	startAutoLocation();
-}
 
 function stopAutoLocation(){
 	clearInterval(autoLocationIntervalId);
@@ -208,7 +224,12 @@ function changeMode(m){
 
 		pixelBattle.enable();
 
-		startAutoLocation();
+		if(pixelBattle.DB.fake) {
+			pixelBattle.DB.load(0, 0);
+		}else{
+			startAutoLocation();
+		}
+
 		map.addLayer(lockLayer);
 	}else if(mode==Mode.NAVIGATE){
 		navModeEl.classList.add("active");
@@ -251,10 +272,10 @@ resize();
 //service worker
 if('serviceWorker' in navigator) {
 	navigator.serviceWorker.register('./serviceWorker.js', { scope: '/' }).then(function(registration) {
-		console.log('Service Worker Registered');
+		//console.log('Service Worker Registered');
 	});
 
 	navigator.serviceWorker.ready.then(function(registration) {
-		console.log('Service Worker Ready');
+		//console.log('Service Worker Ready');
 	});
 }
