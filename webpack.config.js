@@ -10,6 +10,9 @@ module.exports = {
 		'./assets/js/index.js': [
 			'./src/index.js'
 		],
+		'./serviceWorker.js': [
+			'./src/serviceWorker.js'
+		],
 		'./assets/css/style.css': [
 			'./src/index.less',
 			'./node_modules/leaflet/dist/leaflet.css'

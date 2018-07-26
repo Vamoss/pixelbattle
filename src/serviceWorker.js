@@ -1,4 +1,7 @@
-var cacheName = 'PixelBattle-v0.0.1';
+import { version } from '../package.json';
+var cacheName = 'PixelBattle-v'+version;
+console.log(cacheName);
+
 var filesToCache = [
 	'/',
 	'/index.html',
