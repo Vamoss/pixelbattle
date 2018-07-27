@@ -42,7 +42,7 @@ class colorController extends EventEmitter {
 
 			//Select the new color
 			var aColorEl = this.colorsEl.getElementsByTagName('div');
-			aColorEl[aColorEl.length-1].click();
+			this.selectColor({target:aColorEl[aColorEl.length-1]});
 
 			this.colorSelectEl.style.display = 'none';
 			this.emit('onColorAdded');
@@ -76,9 +76,10 @@ class colorController extends EventEmitter {
 	onColorHold(event){
 		if(this.isPressing) {
 			this.holded = true;
-			if(confirm('Remover cor?')) {
+			if(confirm('Remove color?')) {
 				event.target.parentNode.removeChild(event.target);
 				this.saveToLocalStorage();
+				this.emit('onColorRemoved');
 			}
 		}
 	}

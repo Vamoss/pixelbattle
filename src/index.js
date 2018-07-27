@@ -202,6 +202,7 @@ updateLabel();
 updateTime();
 
 //mode
+var controlsEl = document.getElementById('controls');
 var editModeEl = document.getElementById('editMode');
 var navModeEl = document.getElementById('navigateMode');
 var editControlsEl = document.getElementById('editControls');
@@ -214,6 +215,7 @@ const Mode = {
 var mode;
 
 function changeMode(m){
+	if(m==mode) return;
 	mode = m;
 	if(mode==Mode.EDIT){
 		editModeEl.classList.add("active");
@@ -249,6 +251,7 @@ function changeMode(m){
 
 		stopAutoLocation();
 	}
+	window.dispatchEvent(new Event('resize'));
 }
 changeMode(Mode.EDIT);
 
@@ -261,12 +264,19 @@ navModeEl.onclick = function(event) {
 
 
 //colors
-var controlsEl = document.getElementById('controls');
 var colorControl = new colorController();
 colorControl.on('onColorAdded', resize);
+colorControl.on('onColorRemoved', resize);
 
 function resize(){
-	mapEl.style.height = (window.innerHeight - controlsEl.clientHeight) + 'px';
+	var minHeight = parseInt(window.getComputedStyle(controlsEl).getPropertyValue("min-height").replace('px', ''));
+	if(mode==Mode.NAVIGATE){
+		controlsEl.style.height = minHeight + 'px';
+		mapEl.style.height = (window.innerHeight - minHeight - 5) + 'px';
+	}else{
+		controlsEl.style.height = editControlsEl.clientHeight + 'px';
+		mapEl.style.height = (window.innerHeight - editControlsEl.clientHeight - 5) + 'px';
+	}
 	timeEl.style.width = (window.innerWidth - 130) + 'px';
 }
 window.onresize = resize;
