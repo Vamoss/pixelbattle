@@ -59,10 +59,24 @@ lockLayer.addTo(map);
 var user_location = L.latLng(0, 0);
 var user_location_loaded = L.latLng(0, 0);
 var area_util;
+var inner_area_util = {};
 function onLocationFound(e) {
 	if(autoLocationIntervalId==-1) return;
 	gpsErrorEl.style.display = "none";
 	user_location = e.latlng;
+
+	//inner area util
+	//drawable area
+	var size = 20 * 32;//32 one pixel
+	var tileSize = pixelBattle.getTileSize().x;
+	var coords = Utils.latLongToCoord(user_location, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x);
+	var topLeft = map.unproject(L.point(coords.x*tileSize-size, coords.y*tileSize-size), map.getMaxZoom());
+	var bottomRight = map.unproject(L.point(coords.x*tileSize+size, coords.y*tileSize+size), map.getMaxZoom());
+	inner_area_util.x = bottomRight.lat;
+	inner_area_util.y = bottomRight.lng;
+	inner_area_util.w = topLeft.lat;
+	inner_area_util.h = topLeft.lng;
+
 	blockView(user_location);
 	shouldCentralize(user_location);
 	map.removeLayer(lockLayer);
@@ -104,12 +118,11 @@ function locate() {
 }
 
 function shouldCentralize(user_location){
-	var size = 0.001;
-	var x1 = user_location.lng-size;
-	var y1 = user_location.lat+size;
-	var w1 = user_location.lng+size;
-	var h1 = user_location.lat-size;
-
+	var x1 = inner_area_util.h;
+	var y1 = inner_area_util.w;
+	var w1 = inner_area_util.y;
+	var h1 = inner_area_util.x;
+    
 	var bounds = map.getBounds();
 	var x2 = bounds._southWest.lng;
 	var y2 = bounds._northEast.lat;
@@ -122,17 +135,6 @@ function shouldCentralize(user_location){
 }
 
 function blockView(latlng){
-
-	var size = 20 * 32;//32 one pixel
-	var tileSize = pixelBattle.getTileSize().x;
-	var coords = Utils.latLongToCoord(latlng, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x);
-	var topLeft = map.unproject(L.point(coords.x*tileSize-size, coords.y*tileSize-size), map.getMaxZoom());
-	var bottomRight = map.unproject(L.point(coords.x*tileSize+size, coords.y*tileSize+size), map.getMaxZoom());
-	var x = bottomRight.lat;
-	var y = bottomRight.lng;
-	var w = topLeft.lat;
-	var h = topLeft.lng;
-
 	var size = 1;
 	var x2 = latlng.lat-size;
 	var y2 = latlng.lng-size;
@@ -142,14 +144,14 @@ function blockView(latlng){
 	// define rectangle geographical bounds
 	if(area_util) map.removeLayer(area_util);
 	
-	var bounds = [[x, y], [w, h]];
+	var bounds = [[inner_area_util.x, inner_area_util.y], [inner_area_util.w, inner_area_util.h]];
 	area_util = L.polygon(
 		[
 			[
 				[x2,y2],[w2,y2],[w2,h2],[x2,h2]
 			],
 			[
-				[x,y],[w,y],[w,h],[x,h]
+				[inner_area_util.x,inner_area_util.y],[inner_area_util.w,inner_area_util.y],[inner_area_util.w,inner_area_util.h],[inner_area_util.x,inner_area_util.h]
 			]
 		], lockOptions);
 	area_util.addTo(map);
