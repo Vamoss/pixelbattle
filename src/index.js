@@ -79,7 +79,7 @@ function onLocationFound(e) {
 	user_location_loaded = user_location;
 
 	//console.log("Loading: ", user_location);
-	var coords = Utils.latLongToCoord(user_location, map.getZoom(), map.options.crs);
+	var coords = Utils.latLongToCoord(user_location, map.getZoom(), map.options.crs, pixelBattle.getTileSize().x);
 	var perLine = pixelBattle.getTilePerLine(map.getZoom());
 	var tileX = coords.x * perLine;
 	var tileY = coords.y * perLine;
@@ -122,11 +122,16 @@ function shouldCentralize(user_location){
 }
 
 function blockView(latlng){
-	var size = 0.001;
-	var x = latlng.lat-size;
-	var y = latlng.lng-size;
-	var w = latlng.lat+size;
-	var h = latlng.lng+size;
+
+	var size = 20 * 32;//32 one pixel
+	var tileSize = pixelBattle.getTileSize().x;
+	var coords = Utils.latLongToCoord(latlng, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x);
+	var topLeft = map.unproject(L.point(coords.x*tileSize-size, coords.y*tileSize-size), map.getMaxZoom());
+	var bottomRight = map.unproject(L.point(coords.x*tileSize+size, coords.y*tileSize+size), map.getMaxZoom());
+	var x = bottomRight.lat;
+	var y = bottomRight.lng;
+	var w = topLeft.lat;
+	var h = topLeft.lng;
 	
 	var size = 1;
 	var x2 = latlng.lat-size;
@@ -138,7 +143,6 @@ function blockView(latlng){
 	if(area_util) map.removeLayer(area_util);
 	
 	var bounds = [[x, y], [w, h]];
-	//area_util = L.rectangle(bounds, {color: "#ff7800", weight: 1});
 	area_util = L.polygon(
 		[
 			[
