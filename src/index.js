@@ -132,7 +132,7 @@ function blockView(latlng){
 	var y = bottomRight.lng;
 	var w = topLeft.lat;
 	var h = topLeft.lng;
-	
+
 	var size = 1;
 	var x2 = latlng.lat-size;
 	var y2 = latlng.lng-size;
@@ -183,7 +183,7 @@ function pad2(number) {
    return (number < 10 ? '0' : '') + number
 }
 function formatDate(date){
-	var dateFormatted = pad2(date.getDate())+"-"+pad2(date.getMonth())+"-"+date.getFullYear()+" "+pad2(date.getHours())+":"+pad2(date.getMinutes());
+	var dateFormatted = pad2(date.getDate())+"-"+pad2(date.getMonth()+1)+"-"+date.getFullYear()+" "+pad2(date.getHours())+":"+pad2(date.getMinutes());
 	return dateFormatted;
 }
 function updateLabel(){
