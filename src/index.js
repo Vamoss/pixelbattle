@@ -69,7 +69,7 @@ function onLocationFound(e) {
 	//drawable area
 	var size = 20 * 32;//32 one pixel
 	var tileSize = pixelBattle.getTileSize().x;
-	var coords = Utils.latLongToCoord(user_location, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x);
+	var coords = Utils.latLongToCoord(user_location, map.getMaxZoom(), map.options.crs, tileSize);
 	var topLeft = map.unproject(L.point(coords.x*tileSize-size, coords.y*tileSize-size), map.getMaxZoom());
 	var bottomRight = map.unproject(L.point(coords.x*tileSize+size, coords.y*tileSize+size), map.getMaxZoom());
 	inner_area_util.x = bottomRight.lat;
@@ -203,28 +203,70 @@ timeEl.onchange= e => updateTime();
 updateLabel();
 updateTime();
 
+//recent mode
+var recentHistory = [];
+var timeoutId = -1;
+function locateRecent(){
+	if(timeoutId>0) clearTimeout(timeoutId);
+	if(pixelBattle.DB.dataLoaded){
+		var j = pixelBattle.DB.dataRecent.length-1;
+		var value = pixelBattle.DB.dataRecent[j];
+		var found = false;
+		while(!found && j>=0){
+			value = pixelBattle.DB.dataRecent[j];
+			var isFarEnough = true;
+			var i = 0;
+			while(isFarEnough && i<recentHistory.length){
+				if(Math.hypot(recentHistory[i].x-value.x, recentHistory[i].y-value.y)<200)
+					isFarEnough = false;
+				i++;
+			}
+			found = isFarEnough;
+			j--;
+		}
+		if(!found){
+			//reset
+			recentHistory = [];
+			value = pixelBattle.DB.dataRecent[pixelBattle.DB.dataRecent.length-1];
+		}
+		recentHistory.push(value);
+		if(recentHistory.length>10)
+			recentHistory.shift();
+		var latLng = Utils.coordToLatLong(value.x, value.y, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x, pixelBattle.tilesInMaximumZoom);
+		map.setView([latLng.lat, latLng.lng], 18);
+	}
+	timeoutId = setTimeout(() => changeMode(Mode.NAVIGATE), 2000);
+}
+
+
 //mode
 var controlsEl = document.getElementById('controls');
 var editModeEl = document.getElementById('editMode');
 var navModeEl = document.getElementById('navigateMode');
+var recentModeEl = document.getElementById('recentMode');
 var editControlsEl = document.getElementById('editControls');
 var navControlsEl = document.getElementById('navigateControls');
 
 const Mode = {
 	EDIT : 0,
-	NAVIGATE : 1
+	NAVIGATE : 1,
+	RECENT : 2
 }
 var mode;
 
 function changeMode(m){
 	if(m==mode) return;
 	mode = m;
+	editModeEl.classList.remove("active");
+	navModeEl.classList.remove("active");
+	recentModeEl.classList.remove("active");
+
+	editControlsEl.style.display = "none";
+	navControlsEl.style.display = "none";
+
 	if(mode==Mode.EDIT){
 		editModeEl.classList.add("active");
 		editControlsEl.style.display = "";
-
-		navControlsEl.style.display = "none";
-		navModeEl.classList.remove("active");
 
 		timeEl.value = 1;
 		updateLabel();
@@ -243,9 +285,17 @@ function changeMode(m){
 		navModeEl.classList.add("active");
 		navControlsEl.style.display = "";
 
-		editModeEl.classList.remove("active");
-		editControlsEl.style.display = "none";
+		pixelBattle.disable();
+		
+		map.removeLayer(lockLayer);
+		if(area_util) map.removeLayer(area_util);
 
+		stopAutoLocation();
+	}else if(mode==Mode.RECENT){
+		locateRecent();
+
+		recentModeEl.classList.add("active");
+		
 		pixelBattle.disable();
 		
 		map.removeLayer(lockLayer);
@@ -263,6 +313,9 @@ editModeEl.onclick = function(event) {
 navModeEl.onclick = function(event) {
 	changeMode(Mode.NAVIGATE);
 };
+recentModeEl.onclick = function(event) {
+	changeMode(Mode.RECENT);
+};
 
 
 //colors
@@ -272,21 +325,21 @@ colorControl.on('onColorRemoved', resize);
 
 function resize(){
 	var minHeight = parseInt(window.getComputedStyle(controlsEl).getPropertyValue("min-height").replace('px', ''));
-	if(mode==Mode.NAVIGATE){
+	if(mode==Mode.NAVIGATE || mode==Mode.RECENT){
 		controlsEl.style.height = minHeight + 'px';
 		mapEl.style.height = (window.innerHeight - minHeight - 5) + 'px';
 	}else{
 		controlsEl.style.height = editControlsEl.clientHeight + 'px';
 		mapEl.style.height = (window.innerHeight - editControlsEl.clientHeight - 5) + 'px';
 	}
-	timeEl.style.width = (window.innerWidth - 130) + 'px';
+	timeEl.style.width = (window.innerWidth - 180) + 'px';
 }
 window.onresize = resize;
 resize();
 
 
 //service worker
-if('serviceWorker' in navigator) {
+if('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
 	navigator.serviceWorker.register('./serviceWorker.js', { scope: '/' }).then(function(registration) {
 		//console.log('Service Worker Registered');
 	});

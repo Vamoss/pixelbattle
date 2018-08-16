@@ -8,6 +8,13 @@ class Utils {
 		const tile = layerPoint.divideBy(tileSize).floor();
 		return {x: tile.x, y:tile.y, z: zoom};
 	}
+
+	static coordToLatLong(x, y, zoom, crs, tileSize, tilesInMaximumZoom){
+		return crs.pointToLatLng({
+				x: x/tilesInMaximumZoom*tileSize, 
+				y:y/tilesInMaximumZoom*tileSize
+			}, zoom);
+	}
 }
 
 export default Utils

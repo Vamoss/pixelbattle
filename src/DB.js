@@ -7,6 +7,7 @@ class DB extends EventEmitter {
 		super();
 		this.dataLoaded = false;
 		this.data = {}
+		this.dataRecent = [];
 		this.realtimeCallback = () => {};
 
 		this.fake = false;
@@ -32,6 +33,9 @@ class DB extends EventEmitter {
 			var id = values[i].x + ':' + values[i].y;
 			if(!this.data[id]) this.data[id] = [];
 			this.data[id].push(values[i]);
+			this.dataRecent.push(values[i]);
+			if(this.dataRecent.length>10000)
+				this.dataRecent.shift();
 		}
 		this.emit('onData', values)
 	}
@@ -42,6 +46,9 @@ class DB extends EventEmitter {
 		var id = value.x + ':' + value.y;
 		if(!Array.isArray(this.data[id])) this.data[id] = [];
 		this.data[id].push(value);
+		this.dataRecent.push(value);
+		if(this.dataRecent.length>10000)
+			this.dataRecent.shift();
 		this.emit('onData', {0:value})
 	}
 
