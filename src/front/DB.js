@@ -1,33 +1,21 @@
 const EventEmitter = require('events')
-var firebase = require('firebase/app');
-require('firebase/database');
+import io from 'socket.io-client';
 
 class DB extends EventEmitter {
 	constructor () {
 		super();
 		this.dataLoaded = false;
-		this.data = {}
+		this.data = {};
 		this.dataRecent = [];
-		this.realtimeCallback = () => {};
-
+		this.socket = io('//');
+		this.socket.on('socketToMe', data => this.onNewData.call(this, data));
+		
 		this.fake = false;
-
-		var config = {
-			apiKey: process.env.API_KEY,
-			authDomain: process.env.AUTH_DOMAIN,
-			databaseURL: process.env.DATABASE_URL,
-			projectId: process.env.PROJECT_ID,
-			storageBucket: "",
-			messagingSenderId: process.env.MESSAGING_SENDER_ID
-		};
-		var app = firebase.initializeApp(config);
-		this.pixelsRef = firebase.app().database().ref('/pixels');
 	}
 
-	onLoad (snapshot) {
+	onLoad (values) {
 		this.dataLoaded = true;
 
-		var values = snapshot.val();
 		//console.log("Loaded:", values);
 		for (var i in values) {
 			var id = values[i].x + ':' + values[i].y;
@@ -40,59 +28,47 @@ class DB extends EventEmitter {
 		this.emit('onData', values)
 	}
 
-	onNewData(snapshot){
+	onNewData(data){
+		//console.log("onNewData", data, this.dataLoaded);
 		if(!this.dataLoaded) return;
-		var value = snapshot.val();
-		var id = value.x + ':' + value.y;
+		var id = data.x + ':' + data.y;
 		if(!Array.isArray(this.data[id])) this.data[id] = [];
-		this.data[id].push(value);
-		this.dataRecent.push(value);
+		this.data[id].push(data);
+		this.dataRecent.push(data);
 		if(this.dataRecent.length>10000)
 			this.dataRecent.shift();
-		this.emit('onData', {0:value})
+		this.emit('onData', [data])
 	}
 
 	load(idX, idY){
+		var url = "/getAll/" + idX + "/" + idY;
 		if(this.fake){
 			console.warn("LOADING FAKE DATA");
-			var request = new XMLHttpRequest();
-			request.open('GET', './data.json', true);
-			request.onload = event => {
-				if(request.status >= 200 && request.status < 400){
-					var data = JSON.parse(request.responseText);
-					this.dataLoaded = true;
-					this.onLoad({val:function(){return data}});
-					console.log(data);
+			url = '/data.json';
+		}	
+
+		var httpRequest = new XMLHttpRequest();
+			httpRequest.responseType = 'json';
+			httpRequest.onload = e => {
+				if(httpRequest.status >= 200 && httpRequest.status < 400){
+					console.log('all data loaded');
+					var data = httpRequest.response;
+					if(this.fake) data = JSON.parse(request.responseText);
+					this.onLoad(data);
 				}else{
-					console.log("error", event);
+					console.error('could not load the data...');
 				}
 			}
-			request.send();
-			return;
-		}
-		//remove previous listener for when new data is added
-		if(this.dataLoaded)
-			this.pixelsRef.off('child_added', this.realtimeCallback);
-		else
-			//load the first time
-			this.pixelsRef.once('value', snapshot => {
-				this.onLoad.call(this, snapshot);
-			});
-		
-		//when new data is added
-		this.realtimeCallback = snapshot => this.onNewData.call(this, snapshot);
-		this.pixelsRef.limitToLast(1).on('child_added', this.realtimeCallback);
+			httpRequest.open('GET', url	);
+			httpRequest.send();
 	}
 
 	save(idX, idY){
 		var id = idX + ':' + idY;
-		this.data[id] = {
-			time: new Date().getTime(),
-			x: idX,
-			y: idY,
-			color: 'rgba('+window.color.r+','+window.color.g+','+window.color.b+',0.7)'
-		};
-		this.pixelsRef.push(this.data[id]);
+		var url = "/save/" + idX + "/" + idY + "/" + window.color.r + '/' + window.color.g + '/' + window.color.b;
+			var httpRequest = new XMLHttpRequest();
+			httpRequest.open('GET', url);
+			httpRequest.send();
 	}
 
 	getData(coords, perLine){
