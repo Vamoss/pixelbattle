@@ -1,0 +1,45 @@
+extends layout
+
+block content
+  h1= title
+  p(id='test') Welcome to #{title}
+  text Change background color: 
+  button(id='btnDefault') Default
+  button(id='btnRed') Red
+  button(id='btnGreen') Green
+  button(id='btnBlue') Blue
+  script(src="/socket.io/socket.io.js")
+  script.
+    var socket = io('//');
+
+    $('#btnRed').click(function () {
+      $.ajax({
+        method: "GET",
+        url: "/socketio-example/red"
+      });
+    });
+
+    $('#btnGreen').click(function () {
+      $.ajax({
+        method: "GET",
+        url: "/socketio-example/green"
+      });
+    });
+
+    $('#btnBlue').click(function () {
+      $.ajax({
+        method: "GET",
+        url: "/socketio-example/blue"
+      });
+    });
+
+    $('#btnDefault').click(function () {
+      $.ajax({
+        method: "GET",
+        url: "/socketio-example/white"
+      });
+    });
+
+    socket.on('socketToMe', function (data) {
+      $('html').css("background-color", data);
+    });
