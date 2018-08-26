@@ -15,6 +15,11 @@ class DB extends EventEmitter {
 
 	onLoad (values) {
 		this.dataLoaded = true;
+		this.data = {}
+
+		values.sort(function (a, b) {
+		  return a.time-b.time;
+		});
 
 		//console.log("Loaded:", values);
 		for (var i in values) {
@@ -51,9 +56,9 @@ class DB extends EventEmitter {
 			httpRequest.responseType = 'json';
 			httpRequest.onload = e => {
 				if(httpRequest.status >= 200 && httpRequest.status < 400){
-					console.log('all data loaded');
 					var data = httpRequest.response;
 					if(this.fake) data = JSON.parse(request.responseText);
+					console.log('data loaded:', data.length);
 					this.onLoad(data);
 				}else{
 					console.error('could not load the data...');

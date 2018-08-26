@@ -62,13 +62,12 @@ app.get('/getAll/:x/:y', function(req, res) {
   }else{
     var x = parseInt(req.params.x, 10);
     var y = parseInt(req.params.y, 10);
-    var dist = 100;
     r.table(config.rethinkdb.table)
     .filter(
-      r.expr(r.row('x').gt(x - dist))
-       .and(r.row('x').lt(x + dist))
-       .and(r.row('y').gt(y - dist))
-       .and(r.row('y').lt(y + dist))
+      r.expr(r.row('x').gt(x - config.load_dist))
+       .and(r.row('x').lt(x + config.load_dist))
+       .and(r.row('y').gt(y - config.load_dist))
+       .and(r.row('y').lt(y + config.load_dist))
     )
     .run(connection, function(err, cursor) {
         if (err) throw err;

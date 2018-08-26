@@ -42,7 +42,7 @@ var search = new L.Control.Search({
 	minLength: 2
 });
 search.addEventListener('search:locationfound', event => {
-	//console.log("searched", event);
+	console.log("searched", event);
 });
 map.addControl(search);
 var searchButtonEl = document.getElementsByClassName("search-button")[0];
@@ -57,7 +57,6 @@ lockLayer.addTo(map);
 
 //user location
 var user_location = L.latLng(0, 0);
-var user_location_loaded = L.latLng(0, 0);
 var area_util;
 var inner_area_util = {};
 function onLocationFound(e) {
@@ -81,28 +80,7 @@ function onLocationFound(e) {
 	shouldCentralize(user_location);
 	map.removeLayer(lockLayer);
 
-	//TODO
-	//1- DONE - verificar se esta na mesma posicao e nao deixar passar
-	//2- fazer a area ao redor
-	//3- filtrar a query
-	//4- no modo visualizacao passar a localizacao escrolada e implementar o mesmo algoritimo
-	var distance = user_location_loaded.distanceTo(user_location);
-	//console.log("Distance: ", distance);
-
-	if(distance<10000) return;//Rio de Janeiro => Duque de Caxias
-	user_location_loaded = user_location;
-
-	//console.log("Loading: ", user_location);
-	var coords = Utils.latLongToCoord(user_location, map.getZoom(), map.options.crs, pixelBattle.getTileSize().x);
-	var perLine = pixelBattle.getTilePerLine(map.getZoom());
-	var tileX = coords.x * perLine;
-	var tileY = coords.y * perLine;
-	//console.log(coords);
-	//console.log(tileX, tileY);
-	
-	pixelBattle.DB.load(tileX, tileY);
-	// zoom the map to the rectangle bounds
-	//map.fitBounds(bounds);
+	shouldLoad(user_location);
 }
 
 var gpsErrorEl = document.getElementById("gpsError");
@@ -174,6 +152,27 @@ function stopAutoLocation(){
 map.on('locationfound', onLocationFound);
 map.on('locationerror', onLocationError);
 
+
+map.on('dragend',function(e){
+  shouldLoad(map.getCenter());
+});
+
+var user_location_loaded = {x:0, y:0, z:0};
+function shouldLoad(latLng){
+	var tileSize = pixelBattle.getTileSize().x;
+	var coords = Utils.latLongToCoord(latLng, map.getMaxZoom(), map.options.crs, tileSize);
+	var perLine = pixelBattle.getTilePerLine(map.getMaxZoom());
+	coords.x *= perLine;
+	coords.y *= perLine;
+	var distanceX = Math.abs(coords.x-user_location_loaded.x);
+	var distanceY = Math.abs(coords.y-user_location_loaded.y);
+	//console.log("DistanceX: ", distanceX, " DistanceY: ", distanceY);
+
+	if(distanceX<process.env.LOAD_DIST && distanceY<process.env.LOAD_DIST) return;
+	user_location_loaded = coords;
+	
+	pixelBattle.DB.load(coords.x, coords.y);
+}
 
 //timeline
 var timeEl = document.getElementById('time');

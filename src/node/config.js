@@ -18,5 +18,6 @@ module.exports = {
     },
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    ssl: false
+    ssl: false,
+    load_dist: process.env.LOAD_DIST
   }

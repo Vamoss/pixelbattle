@@ -1,12 +1,13 @@
 {
   "name": "pixelbattle",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node ./bin/www",
     "migrate": "rethinkdb-migrate -f src/node/config.js",
     "create-db": "node src/node/createDb.js",
+    "import-firebase": "node src/node/importFirebase.js",
     "dev": "npm-run-all --parallel dev:front dev:back",
     "dev:back": "nodemon ./bin/www",
     "build": "webpack --mode production --config webpack.prod.js",
