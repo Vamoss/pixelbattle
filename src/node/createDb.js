@@ -13,6 +13,8 @@ r.connect(config.rethinkdb, function (err, conn) {
     .finally(function () {
       return r.tableCreate(config.rethinkdb.table).run(conn);
     }).then(function () {
+      r.table(config.rethinkdb.table).indexCreate('time').run(conn);
+    }).then(function () {
       return r.tableCreate('users').run(conn);
     }).then(function () {
       return r.db(config.rethinkdb.db).table('users').insert({id: config.user, password: config.password}).run(conn);

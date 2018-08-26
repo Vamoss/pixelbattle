@@ -5,6 +5,7 @@ class DB extends EventEmitter {
 	constructor () {
 		super();
 		this.dataLoaded = false;
+		this.dataRecentLoaded = false;
 		this.data = {};
 		this.dataRecent = [];
 		this.socket = io('//');
@@ -26,9 +27,6 @@ class DB extends EventEmitter {
 			var id = values[i].x + ':' + values[i].y;
 			if(!this.data[id]) this.data[id] = [];
 			this.data[id].push(values[i]);
-			this.dataRecent.push(values[i]);
-			if(this.dataRecent.length>10000)
-				this.dataRecent.shift();
 		}
 		this.emit('onData', values)
 	}
@@ -40,7 +38,7 @@ class DB extends EventEmitter {
 		if(!Array.isArray(this.data[id])) this.data[id] = [];
 		this.data[id].push(data);
 		this.dataRecent.push(data);
-		if(this.dataRecent.length>10000)
+		if(this.dataRecent.length>process.env.LOAD_DIST)
 			this.dataRecent.shift();
 		this.emit('onData', [data])
 	}
@@ -50,7 +48,7 @@ class DB extends EventEmitter {
 		if(this.fake){
 			console.warn("LOADING FAKE DATA");
 			url = '/data.json';
-		}	
+		}
 
 		var httpRequest = new XMLHttpRequest();
 			httpRequest.responseType = 'json';
@@ -65,6 +63,24 @@ class DB extends EventEmitter {
 				}
 			}
 			httpRequest.open('GET', url	);
+			httpRequest.send();
+	}
+
+	loadRecent(){
+		var httpRequest = new XMLHttpRequest();
+			httpRequest.responseType = 'json';
+			httpRequest.onload = e => {
+				if(httpRequest.status >= 200 && httpRequest.status < 400){
+					var data = httpRequest.response;
+					console.log('recent loaded:', data.length);
+					data.reverse();//convert from newest to latest
+					this.dataRecent = data;
+					this.dataRecentLoaded = true;
+				}else{
+					console.error('could not load the data...');
+				}
+			}
+			httpRequest.open('GET', '/getRecent');
 			httpRequest.send();
 	}
 

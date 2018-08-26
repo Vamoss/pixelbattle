@@ -58,7 +58,7 @@ app.get('/save/:x/:y/:r/:g/:b', function(req, res) {
 app.get('/getAll/:x/:y', function(req, res) {
   if(!connection){
     console.log("database not connected...");
-    res.json({});
+    res.json([]);
   }else{
     var x = parseInt(req.params.x, 10);
     var y = parseInt(req.params.y, 10);
@@ -69,6 +69,22 @@ app.get('/getAll/:x/:y', function(req, res) {
        .and(r.row('y').gt(y - config.load_dist))
        .and(r.row('y').lt(y + config.load_dist))
     )
+    .run(connection, function(err, cursor) {
+        if (err) throw err;
+        cursor.toArray(function(err, result) {
+            if (err) throw err;
+            res.json(result);
+        });
+    });
+  }
+});
+
+app.get('/getRecent', function(req, res) {
+  if(!connection){
+    console.log("database not connected...");
+    res.json([]);
+  }else{
+    r.table(config.rethinkdb.table).orderBy({index: r.desc('time')}).limit(config.load_recent)
     .run(connection, function(err, cursor) {
         if (err) throw err;
         cursor.toArray(function(err, result) {

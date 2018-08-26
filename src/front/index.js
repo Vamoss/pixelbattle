@@ -42,7 +42,8 @@ var search = new L.Control.Search({
 	minLength: 2
 });
 search.addEventListener('search:locationfound', event => {
-	console.log("searched", event);
+	//console.log("searched", event);
+	shouldLoad(event.latlng);
 });
 map.addControl(search);
 var searchButtonEl = document.getElementsByClassName("search-button")[0];
@@ -207,7 +208,7 @@ var recentHistory = [];
 var timeoutId = -1;
 function locateRecent(){
 	if(timeoutId>0) clearTimeout(timeoutId);
-	if(pixelBattle.DB.dataLoaded){
+	if(pixelBattle.DB.dataRecentLoaded){
 		var j = pixelBattle.DB.dataRecent.length-1;
 		var value = pixelBattle.DB.dataRecent[j];
 		var found = false;
@@ -233,10 +234,11 @@ function locateRecent(){
 			recentHistory.shift();
 		var latLng = Utils.coordToLatLong(value.x, value.y, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x, pixelBattle.tilesInMaximumZoom);
 		map.setView([latLng.lat, latLng.lng], 18);
+		shouldLoad(latLng);
 	}
 	timeoutId = setTimeout(() => changeMode(Mode.NAVIGATE), 2000);
 }
-
+pixelBattle.DB.loadRecent();
 
 //mode
 var controlsEl = document.getElementById('controls');

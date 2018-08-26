@@ -19,5 +19,6 @@ module.exports = {
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     ssl: false,
-    load_dist: process.env.LOAD_DIST
+    load_dist: parseInt(process.env.LOAD_DIST, 10),
+    load_recent: parseInt(process.env.LOAD_RECENT, 10)
   }
