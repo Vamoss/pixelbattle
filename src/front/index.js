@@ -1,6 +1,10 @@
+//TODO
+//redirect DNS to AWS and remove this comment
+/*
 if(process.env.NODE_ENV === 'production' && window.location.hostname.indexOf("pixelbattle.com.br")==-1){
 	window.location.href = "https://pixelbattle.com.br";
 }
+*/
 
 import Utils from './Utils.js';
 import './gridLayer.js';
