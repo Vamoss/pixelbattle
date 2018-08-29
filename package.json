@@ -1,17 +1,27 @@
 {
   "name": "pixelbattle",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init": "firebase init",
-    "dev": "webpack-dev-server --mode development --open --host 0.0.0.0 --config webpack.dev.js",
+    "start": "node ./bin/www",
+    "migrate": "rethinkdb-migrate -f src/node/config.js",
+    "create-db": "node src/node/createDb.js",
+    "import-firebase": "node src/node/importFirebase.js",
+    "dev": "npm-run-all --parallel dev:front dev:back",
+    "dev:back": "nodemon ./bin/www",
     "build": "webpack --mode production --config webpack.prod.js",
-    "deploy": "firebase deploy"
+    "dev:front": "webpack --mode development --config webpack.dev.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Vamoss/pixelbattle.git"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "public/*",
+      "src/front/*"
+    ]
   },
   "keywords": [
     "googlemaps",
@@ -26,27 +36,32 @@
   "bugs": {
     "url": "https://github.com/Vamoss/pixelbattle/issues"
   },
-  "homepage": "https://github.com/Vamoss/pixelbattle#readme",
+  "homepage": "https://pixelbattle.com.br",
   "devDependencies": {
     "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^0.28.10",
     "dotenv-webpack": "^1.5.5",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "firebase": "^4.11.0",
-    "firebase-tools": "^3.19.3",
     "html-webpack-exclude-assets-plugin": "0.0.7",
     "html-webpack-plugin": "^3.0.6",
     "less": "^3.0.1",
     "less-loader": "^4.1.0",
+    "npm-run-all": "^4.1.3",
     "style-loader": "^0.20.3",
     "uglifyjs-webpack-plugin": "^1.2.7",
     "webpack": "^4.1.1",
-    "webpack-cli": "^2.0.11",
-    "webpack-dev-server": "^3.1.1",
+    "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.2"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.3",
+    "http-errors": "^1.7.0",
     "leaflet": "^1.3.1",
-    "leaflet-search": "^2.9.0"
+    "leaflet-search": "^2.9.0",
+    "morgan": "^1.9.0",
+    "pug": "^2.0.3",
+    "rethinkdb": "^2.3.3",
+    "socket.io": "^2.1.1"
   }
 }

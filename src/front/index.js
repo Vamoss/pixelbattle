@@ -1,6 +1,10 @@
+//TODO
+//redirect DNS to AWS and remove this comment
+/*
 if(process.env.NODE_ENV === 'production' && window.location.hostname.indexOf("pixelbattle.com.br")==-1){
 	window.location.href = "https://pixelbattle.com.br";
 }
+*/
 
 import Utils from './Utils.js';
 import './gridLayer.js';
@@ -43,6 +47,7 @@ var search = new L.Control.Search({
 });
 search.addEventListener('search:locationfound', event => {
 	//console.log("searched", event);
+	shouldLoad(event.latlng);
 });
 map.addControl(search);
 var searchButtonEl = document.getElementsByClassName("search-button")[0];
@@ -57,7 +62,6 @@ lockLayer.addTo(map);
 
 //user location
 var user_location = L.latLng(0, 0);
-var user_location_loaded = L.latLng(0, 0);
 var area_util;
 var inner_area_util = {};
 function onLocationFound(e) {
@@ -81,28 +85,7 @@ function onLocationFound(e) {
 	shouldCentralize(user_location);
 	map.removeLayer(lockLayer);
 
-	//TODO
-	//1- DONE - verificar se esta na mesma posicao e nao deixar passar
-	//2- fazer a area ao redor
-	//3- filtrar a query
-	//4- no modo visualizacao passar a localizacao escrolada e implementar o mesmo algoritimo
-	var distance = user_location_loaded.distanceTo(user_location);
-	//console.log("Distance: ", distance);
-
-	if(distance<10000) return;//Rio de Janeiro => Duque de Caxias
-	user_location_loaded = user_location;
-
-	//console.log("Loading: ", user_location);
-	var coords = Utils.latLongToCoord(user_location, map.getZoom(), map.options.crs, pixelBattle.getTileSize().x);
-	var perLine = pixelBattle.getTilePerLine(map.getZoom());
-	var tileX = coords.x * perLine;
-	var tileY = coords.y * perLine;
-	//console.log(coords);
-	//console.log(tileX, tileY);
-	
-	pixelBattle.DB.load(tileX, tileY);
-	// zoom the map to the rectangle bounds
-	//map.fitBounds(bounds);
+	shouldLoad(user_location);
 }
 
 var gpsErrorEl = document.getElementById("gpsError");
@@ -175,6 +158,27 @@ map.on('locationfound', onLocationFound);
 map.on('locationerror', onLocationError);
 
 
+map.on('dragend',function(e){
+  shouldLoad(map.getCenter());
+});
+
+var user_location_loaded = {x:0, y:0, z:0};
+function shouldLoad(latLng){
+	var tileSize = pixelBattle.getTileSize().x;
+	var coords = Utils.latLongToCoord(latLng, map.getMaxZoom(), map.options.crs, tileSize);
+	var perLine = pixelBattle.getTilePerLine(map.getMaxZoom());
+	coords.x *= perLine;
+	coords.y *= perLine;
+	var distanceX = Math.abs(coords.x-user_location_loaded.x);
+	var distanceY = Math.abs(coords.y-user_location_loaded.y);
+	//console.log("DistanceX: ", distanceX, " DistanceY: ", distanceY);
+
+	if(distanceX<process.env.LOAD_DIST && distanceY<process.env.LOAD_DIST) return;
+	user_location_loaded = coords;
+	
+	pixelBattle.DB.load(coords.x, coords.y);
+}
+
 //timeline
 var timeEl = document.getElementById('time');
 var timeLabelEl = document.getElementById('timeLabel');
@@ -208,7 +212,7 @@ var recentHistory = [];
 var timeoutId = -1;
 function locateRecent(){
 	if(timeoutId>0) clearTimeout(timeoutId);
-	if(pixelBattle.DB.dataLoaded){
+	if(pixelBattle.DB.dataRecentLoaded){
 		var j = pixelBattle.DB.dataRecent.length-1;
 		var value = pixelBattle.DB.dataRecent[j];
 		var found = false;
@@ -234,10 +238,11 @@ function locateRecent(){
 			recentHistory.shift();
 		var latLng = Utils.coordToLatLong(value.x, value.y, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x, pixelBattle.tilesInMaximumZoom);
 		map.setView([latLng.lat, latLng.lng], 18);
+		shouldLoad(latLng);
 	}
 	timeoutId = setTimeout(() => changeMode(Mode.NAVIGATE), 2000);
 }
-
+pixelBattle.DB.loadRecent();
 
 //mode
 var controlsEl = document.getElementById('controls');

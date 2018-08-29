@@ -1,4 +1,4 @@
-import {Point} from '../node_modules/leaflet/src/geometry/Point';
+import {Point} from '../../node_modules/leaflet/src/geometry/Point';
 import DB from './DB.js'
 import Utils from './Utils.js';
 import SnakeLoader from './Snake.js'
@@ -210,7 +210,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 		var perLine = this.getTilePerLine(coords.z);
 		var tileX = coords.x * perLine;
 		var tileY = coords.y * perLine;
-		for(var i in data){
+		for (var i = 0, len = data.length; i < len; i++) {
 			var x = data[i].x;
 			var y = data[i].y;
 			if(x >= tileX && x < tileX + perLine
@@ -271,7 +271,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 			var x = data[i].x - (coords.x * perLine);//0, 1, 2...
 			var y = data[i].y - (coords.y * perLine);//0, 1, 2...
 			context.beginPath();
-			context.fillStyle = data[i].color;
+			context.fillStyle = 'rgba('+data[i].r+','+data[i].g+','+data[i].b+',0.7';
 			context.rect(x*size, y*size, size, size);
 			context.fill();
 		}

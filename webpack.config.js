@@ -9,38 +9,40 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
 	entry: {
 		'./assets/js/index.js': [
-			'./src/index.js'
+			'./src/front/index.js'
 		],
 		'./serviceWorker.js': [
-			'./src/serviceWorker.js'
+			'./src/front/serviceWorker.js'
 		],
 		'./assets/css/style.css': [
-			'./src/index.less',
+			'./src/front/index.less',
 			'./node_modules/leaflet/dist/leaflet.css',
 			'./node_modules/leaflet-search/dist/leaflet-search.min.css'
 		]
 	},
 	output: {
 		filename: '[name]',
-		path: path.resolve(__dirname, 'docs')
+		path: path.resolve(__dirname, 'public')
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: 'Pixel Battle',
-			template: './src/index.html',
+			template: './src/front/index.html',
 			excludeAssets: /serviceWorker.*.js/
 		}),
 		new HtmlWebpackExcludeAssetsPlugin(),
 		new ExtractTextPlugin('[name]'),
 		new Dotenv(),
 		new CopyWebpackPlugin([
-			{ from: './src/static/', to: './' },
+			{ from: './src/front/static/', to: './' },
 			{ from: './node_modules/leaflet-search/images/search-icon.png', to: './assets/images/'},
 			{ from: './node_modules/leaflet-search/images/loader.gif', to: './assets/images/'},
 		])
 	],
 	devServer: {
-		contentBase: "./docs"
+		stats: {
+			chunks: false
+		}
 	},
 	module: {
 		rules: [

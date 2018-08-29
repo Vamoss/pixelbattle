@@ -1,4 +1,4 @@
-import { version } from '../package.json';
+import { version } from '../../package.json';
 var cacheName = 'PixelBattle-v'+version;
 console.log(cacheName);
 
