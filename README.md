@@ -7,39 +7,6 @@ https://pixelbattle.com.br
 
 **English:** Imagine the city as a big canvas to be painted collectively, in constant transformation through the continuous overlap of pixels and colors. The battle is a provocation of how collaborative we can be.
 
-### Inicialização (Initialization)
-1. Instalando as ferramentas do firebase (Install firebase tools)
-```console
-npm install -g firebase-tools
-```
-2. Intalando as dependencias (Install dependencies)
-```console
-npm install
-```
-3. Inicializando a configuração do firebase (Init firebase configuration)
-```console
-npm run init
-```
-4. Configure o bando de dados firebase com as configurações de ``.env``. Uma amostra está disponível em ``.env.sample`` (Configure firebase database data by setting the ``.env``. Sample configuration available at ``.env.sample``)
-
-### Desenvolvendo (Developing)
-1. Run a local server over https://0.0.0.0:8080 that updates automatically when the code is changed
-```console
-npm run dev
-```
-
-### Publicando (Publishing)
-1. Construa e comprima os arquivos na pasta ``docs`` (Build and compress the files into the fonder ``docs``) 
-```console
-npm run build
-```
-
-2. Publique a pasta ``docs`` no firebase (Deploy the ``docs`` folder to firebase)
-```console
-npm run deploy
-```
-
-
 
 ## Sobre o projeto (About the project)
 **Português:** Todos podem pintar a cidade usando seus celulares. Seu desenho pode ser sobreposto por outra pessoa. O último pixel desenhado será o exibido para todos. Pessoas também podem explorar livremente os desenhos espacialmente e temporalmente.
@@ -64,13 +31,17 @@ The project was developed during the Multiverso artistic residence.
 
 Então eu decidi usar o [HTML Canvas](https://developer.mozilla.org/docs/Web/API/Canvas_API) para exibir as pinturas, e foi uma decisão para obter uma boa performance com dados em tempo real e interativos interativa e controle total sobre os desenhos.
 
-Por último e não menos importante eu decidi usar o [Firebase Realtime Database](https://firebase.google.com/docs/database) por causa do ecossistema(Hospedagem, desenvolviemnto, publicação, gerenciamento, código, documentação) e seu framework completo que já resolvia muitos das [tarefas de sincronismo de dados](https://firebase.google.com/docs/database/web/lists-of-data).
+O ambiente de produção foi feito com os serviços da Amazon, e toda arquitetura de DevOps foi feita pelo [Cristian Mello](https://github.com/cristiancmello).
+
+Adotamos no projeto o banco de dados [RethinkDB](https://rethinkdb.com/), por sua maneira trabalhar com dados em tempo real.
 
 **English:** First I decided to go with [Leaflet](https://leafletjs.com) instead of [Google Maps](https://cloud.google.com/maps-platform/) because the code architecture was much more JS oriented, and specifically the [grid layer](https://leafletjs.com/reference-1.3.0.html#gridlayer) was very useful.
 
 So I decided to use [HTML Canvas](https://developer.mozilla.org/docs/Web/API/Canvas_API) to render the paintings, it was a good decision to get a realtime interactive performance with full drawing control.
 
-At last but not least I choose to use [Firebase Realtime Database](https://firebase.google.com/docs/database) because the ecosystem(Host, Dev, Deploy, Manage, Code, Documentation) and it has a complete framework that already solved a lot of [data sync tasks](https://firebase.google.com/docs/database/web/lists-of-data).
+The production environment was done using the Amazon services, and all the DevOps archtecture was done by [Cristian Mello](https://github.com/cristiancmello).
+
+We adopted the [RethinkDB](https://rethinkdb.com/) database, by his way of working with realtime data.
 
 ### A complexidade do algoritimo de dados (The algorithm data complexity)
 **Português:** Em geral, todo motor de mapa é feito de quadrados(Tiles). Cada quadrado mostra parcialmente a Terra em nível de ampliação(zoom) correspondente.
@@ -96,6 +67,52 @@ At zoom level 19(maximum in general maps) the earth map is subdivided in 524.287
 **English:** At **Pixel Battle** maximum zoom level(19) the tile is also subdivided by 4 rows and 4 columns, resultin in 2.097.148```(524.287*4)``` tiles horizontally and vertically.
 
 Finally we got a total of 4.398.029.733.904```(2.097.148^2)``` pixels to paint. More than 4 TRILLIONS!!!!
+
+
+## Desenvolvimento (Development)
+
+**Português:** 
+Este projeto é executado dentro de um ambiente de desenvolvimento criado pelo Docker Container.
+
+Primeiro é necessário clonar o [repositório do Docker Container](https://github.com/cristiancmello/pixel-battle-stack).
+
+Ao seguir os passos de configuração do repositório acima, o servidor do banco de dados e node serão levantados.
+
+Ao concluir os passos será necessário clonar este repositório na pasta src/ do Container.
+
+**English:**
+This project is executed inside a development environment created by a Docker Container.
+
+It is first necessary to clone the [Docker repository](https://github.com/cristiancmello/pixel-battle-stack).
+
+Follow the configuration steps from the repository above, the database server and the node server will get up.
+
+When concluding the steps it will be needed to clone this repository in the /src folder at the Container.
+
+
+### Inicialização (Initialization)
+1. Intalando as dependencias (Install dependencies)
+```console
+npm install
+```
+2. Copie o arquivo ``.env.sample`` renomeando-o para ``.env`` (Copy the file ``.env.sambple`` renaming it to ``.env``)
+
+### Desenvolvendo (Developing)
+1. Run a local server over http://localhost:8080/.
+```console
+npm run dev
+```
+
+### Publicando (Release)
+1. Para publicar o front-end e comprimi-lo na pasta ``public`` (To build and compress the front-end files into the ``public`` folder)
+```console
+npm run build
+```
+
+2. Para rodar o servidor node em modo de produção (To run the node server in production mode)
+```console
+npm run start
+```
 
   ### Links úteis (Usefull links)
 1. [Inspiration: Mapeamento a project from ```@mneunomne```](https://github.com/mneunomne/mapeamento/)
