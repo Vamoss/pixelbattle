@@ -3,6 +3,7 @@ html, body {
 	margin: 0;
 	overflow: hidden;
 	bla: none;
+	font-family: arial;
 }
 
 canvas {
@@ -41,12 +42,11 @@ canvas {
 		border-radius: 60px;
 		cursor: pointer;
 		border: 0;
-		box-shadow: 0 3px 0 0 #DDD;
 	}
 
 	.color {
 		float: left;
-		margin: 2px 5px 10px;
+		margin: 3px 5px 10px;
 		border: 4px solid #fff;
 		box-sizing: border-box;
 		-moz-box-sizing: border-box;
@@ -54,29 +54,30 @@ canvas {
 	}
 
 	.selected {
-		border: 0px;
+		border: 3px solid #8303FF;
 	}
 
 	.btn {
 		outline: none;
 		cursor: pointer;
-		text-shadow: 0 1px #6A845F;
 		font-size: 16px;
 		background-color: #fff;
-		border: 1px solid #ccc;
+		border: 1px solid #5E2C86;
 		border-radius: 6px;
 		font-weight: 400;
 	}
 
 	.btn-toggle{
 		float: left;
-		margin-right: 20px;
+		margin-right: 10px;
 		margin-left: 5px;
 
 		.btn{
 			border-radius: 0;
 			float: left;
 			padding: 10px;
+			fill: #5E2C86;
+			border-color: #5E2C86;
 
 			&:first-child {
 				border-bottom-left-radius: 6px;
@@ -92,18 +93,23 @@ canvas {
 			&.active {
 				box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
 				color: #fff;
-				background-color: #3276b1;
-				border-color: #285e8e;
+				background-color: #5E2C86;
 				fill: #fff;
 			}
 		}
 	}
 
 	#revealColorSelect {
-		line-height: 40px;
-		padding: 2px 15px;
+		padding: 0px 13px 6px 13px;
+		height: 46px;
 		font-size: 30px;
 		float: left;
+		color: #5E2C86;
+	}
+
+	#navigateMode{
+		border-left: 0px;
+		border-right: 0px;
 	}
 
 	/* New Color Palette */
@@ -112,7 +118,7 @@ canvas {
 		border-radius: 5px;
 		clear: both;
 		padding: 10px;
-		width: 305px;
+		width: 282px;
 		position: absolute;
 		top: -180px;
 		left: 10px;
@@ -135,9 +141,11 @@ canvas {
 
 		button {
 			clear: both;
-			width: 305px;
+			width: 280px;
 			height: 40px;
 			border-radius: 0 0 5px 5px;
+			background-color: #5E2C86;
+			color: #fff;
 		}
 	}
 
@@ -148,7 +156,7 @@ canvas {
 		box-shadow: none;
 		float: left;
 		border: none;
-		margin: 10px 20px 20px 10px;
+		margin: 10px 20px 20px 0px;
 	}
 
 	#sizeSelect {
@@ -165,7 +173,7 @@ canvas {
 		label {
 			display: inline-block;
 			margin: 0 10px 0 0;
-			width: 35px;
+			width: 32px;
 			font-size: 14px;
 			color: #6D574E;
 		}
@@ -181,7 +189,7 @@ canvas {
 	    -moz-appearance: none;
 	    border-radius: 50px;
 	    height: 15px;
-	    background: #CCC;
+	    background: #A49AAD;
 	    outline: none;
 
 		&::-webkit-slider-thumb {
@@ -191,7 +199,7 @@ canvas {
 		    width: 25px;
 		    height: 25px;
 		    border-radius: 50px;
-		    background: #3276b1;
+		    background: #5E2C86;
 		    cursor: pointer;
 		}
 
