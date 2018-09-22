@@ -22,6 +22,7 @@ var map = L.map('map', {
 	minZoom: 13,
 	maxZoom: 19
 });
+
 map.setView([-22.9707, -43.1823], 15);
 map.doubleClickZoom.disable(); 
 
@@ -210,6 +211,7 @@ updateTime();
 //recent mode
 var recentHistory = [];
 var timeoutId = -1;
+var placeEl = document.getElementById("place");
 function locateRecent(){
 	if(timeoutId>0) clearTimeout(timeoutId);
 	if(pixelBattle.DB.dataRecentLoaded){
@@ -234,10 +236,31 @@ function locateRecent(){
 			value = pixelBattle.DB.dataRecent[pixelBattle.DB.dataRecent.length-1];
 		}
 		recentHistory.push(value);
-		if(recentHistory.length>10)
+		if(recentHistory.length>30)
 			recentHistory.shift();
 		var latLng = Utils.coordToLatLong(value.x, value.y, map.getMaxZoom(), map.options.crs, pixelBattle.getTileSize().x, pixelBattle.tilesInMaximumZoom);
-		map.setView([latLng.lat, latLng.lng], 18);
+		map.flyTo(latLng, 15);
+
+		var httpRequest = new XMLHttpRequest();
+			httpRequest.responseType = 'json';
+			httpRequest.onload = e => {
+				if(httpRequest.status >= 200 && httpRequest.status < 400){
+					var data = httpRequest.response;
+					var place = data.address.city_district || data.address.city;
+					place += ", " + data.address.country;
+					placeEl.innerText = place;
+					placeEl.classList.remove('fadeInAndOut');
+					window.requestAnimationFrame(function() {
+						placeEl.classList.add('fadeInAndOut');
+					});
+				}else{
+					console.error('could not load the nominatim...');
+				}
+			}
+			var url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + latLng.lat + "&lon=" + latLng.lng;
+			httpRequest.open('GET', url	);
+			httpRequest.send();
+
 		shouldLoad(latLng);
 	}
 	timeoutId = setTimeout(() => changeMode(Mode.NAVIGATE), 2000);
@@ -322,6 +345,19 @@ recentModeEl.onclick = function(event) {
 	changeMode(Mode.RECENT);
 };
 
+//autoplay
+var input = "";
+const pattern = "auto";
+document.addEventListener('keydown', (event) => {
+	input += event.key;
+	if (input.length > pattern.length) {
+		input = input.substr(input.length - pattern.length);
+	}
+	if (input === pattern) {
+		input = '';
+		setInterval(locateRecent, 20000);
+	}
+});
 
 //colors
 var colorControl = new colorController();

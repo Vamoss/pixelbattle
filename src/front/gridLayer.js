@@ -54,6 +54,7 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 
 	//called after onAdd, everytime a tile is created
 	createTile: function (coords) {
+		if(coords.z<13) return document.createElement('span');
 		var canvas = document.createElement('canvas');
 
 		var tileSize = this.getTileSize();
@@ -89,6 +90,8 @@ L.GridLayer.PixelBattle = L.GridLayer.extend({
 	//called after createTile, everytime a tile is created
 	_initTile: function (tile) {
 		L.GridLayer.prototype._initTile.call(this, tile);
+
+		if(tile.tagName == 'SPAN') return;
 
 		//enable mouse move
 		tile.style.pointerEvents = "auto";//default is none
